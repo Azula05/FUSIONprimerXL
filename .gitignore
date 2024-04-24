@@ -1,10 +1,9 @@
 assets/GRCh38/index_bowtie/*
-assets/GRCh38/index_fastahack/*
-docker/assets/*
 **/.DS_Store
 .DS_Store
 .nextflow*
 work*
+test*
 nextflow_dev.config
 README.html
 .Rhistory
