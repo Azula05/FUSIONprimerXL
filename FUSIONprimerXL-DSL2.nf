@@ -84,8 +84,8 @@ def helpMessage() {
 	--min_gc		minimum GC contect of the primers (default: 30)
 	--max_gc		maximum GC contect of the primers(default: 80)
 	--opt_gc		optimal GC contect of the primers(default: 50)
-	--amp_min		minimum amplicon length (default: 60)
-	--amp_max		maximum amplicon length (default: 0)
+	--amp_min		minimum amplicon length (default: 50)
+	--amp_max		maximum amplicon length (default: 200)
 	--temp_str_filter	when set to 'on', secunday structures in the tample are avoided during primer design; when set to 'off', this is not done (default: 'on')
 	--spec_filter		when set to 'strict', only 2MM + 3MM are allowed; when set to 'loose', 2MM + 2MM and 2MM + 1MM are also allowed
 	--output_dir		path to directory where the output files will be saved
@@ -176,6 +176,7 @@ PROCESS 1 - splitting input file
 */
 // channels
 input_seq_handle = Channel.fromPath(params.input_seq)
+
 // process
 process split_input{
     input:
@@ -184,17 +185,22 @@ process split_input{
     output:
 	path 'fusion*', emit: ind_fusion_file
 	path 'start_time.txt', emit: start_time
-	path 'all_fusion.txt', emit: all_cic
+	path 'all_fusion.txt', emit: all_fusion
 
-
+	script:	
 	"""
 	01_split_input.py -i $input_seq_handle
 	python3 -c 'from datetime import datetime; print(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))' > start_time.txt
 	"""
 }
 
+/*
+====================================================================================================
+THE WORKFLOW
+====================================================================================================
+*/
+
 workflow {
     // process 1
     split_input(input_seq_handle)
-	split_input.view()
 }
