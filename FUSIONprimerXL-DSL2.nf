@@ -164,7 +164,7 @@ FUSIONprimerXL pipeline
 ==============================================
 OncoRNALab - Marieke Vromman (DSL1) / Arne Blom (DSL2)
 Github -
-Docker -
+Docker - https://hub.docker.com/repository/docker/oncornalab/primerxl_circ/
 ==============================================
 your input file: ${params.input_seq}
 your output directory: ${params.output_dir}
@@ -175,22 +175,22 @@ PROCESS 1 - splitting input file
 ====================================================================================================
 */
 // channels
+
 input_seq_handle = Channel.fromPath(params.input_seq)
+output_dir_handle = Channel.fromPath(params.output_dir)
 
 // process
 process split_input{
     input:
-    path ind_fusion_file_handle
-
-    output:
+    path input_seq_handle
+/*     output:
 	path 'fusion*', emit: ind_fusion_file
 	path 'start_time.txt', emit: start_time
-	path 'all_fusion.txt', emit: all_fusion
+	path 'all_fusion.txt', emit: all_fusion */
 
 	script:	
 	"""
-	01_split_input.py -i $input_seq_handle
-	python3 -c 'from datetime import datetime; print(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))' > start_time.txt
+	cat input_seq_handle
 	"""
 }
 

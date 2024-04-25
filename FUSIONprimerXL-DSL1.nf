@@ -1,5 +1,5 @@
 #!/usr/bin/env nextflow
-
+nextflow.enable.dsl=1
 // set default parameters
 
 params.index_bowtie = "$baseDir/assets/GRCh38/index_bowtie"
