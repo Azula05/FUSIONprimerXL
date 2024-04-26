@@ -19,17 +19,13 @@ args = parser.parse_args()
 ####################################################################################################
 ####################################  2. Retrieve sequence  ########################################
 ####################################################################################################
-if args.input_type[0] == 'retrieve':
-
-
-
 
 
 ####################################################################################################
 ####################################  3. Processing  ###############################################
 ####################################################################################################
 # save current working directory
-Base = os.getcwd()
+Base_dir = os.getcwd()
 # store the path to the output folder with current date and time
 currentDT = datetime.datetime.now()
 output_folder = os.path.join(args.output_dir[0], 'fusion_files_' + currentDT.strftime("%Y-%m-%d_%H-%M") + '/')
@@ -94,4 +90,4 @@ all_fusion_file.close()
 input_file.close()
 
 # move back to the base directory
-os.chdir(Base)
+os.chdir(Base_dir)

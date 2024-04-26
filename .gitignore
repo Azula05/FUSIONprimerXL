@@ -12,3 +12,5 @@ assets/WBcel235/known_exons_WBcel235.bed
 assets/GRCm39/known_exons_GRCm39.bed
 assets/GRCz11/known_exons_GRCz11.bed
 assets/xenTro9/known_exons_xenTro9.bed
+bin/Single_record_retrieval_test.py
+bin/test.py
