@@ -12,26 +12,37 @@ This pipeline runs entirly in the [oncornalab/primerxl_circ](https://hub.docker.
 
 ## Installation
 ### Required reference genome
-A reference is required to run the pipeline:
-a Bowtie cDNA + ncRNA reference to test the specificity of the primers (https://github.com/BenLangmead/bowtie)
+Two references are required to run the pipeline:
+- a fasthack reference genome to extract the fusionRNA sequence surrounding the breakpoint (BP) [fastahack](https://github.com/ekg/fastahack)
+- a Bowtie cDNA + ncRNA reference to test the specificity of the primers [bowtie](https://github.com/BenLangmead/bowtie)
 
+You do not need to install Bowtie or fastahack locally to create the required indexes. Instead you can use the Docker container. For this, [Docker](https://docs.docker.com/get-docker/) needs to be installed on your computer and the required docker image [primerxl_circ](https://hub.docker.com/r/oncornalab/primerxl_circ).
+
+### Fastahack
+```bash
+# download the complete primary assembly in the corresponding assets folder (/assets/GRCh38/index_fastahack/)
+wget https://ftp.ensembl.org/pub/release-111/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+# use oncornalab/primerxl_circ:v0.30 docker image to create the index (ran from the base folder FUSIONprimerXL)
+docker run -v "$PWD/assets":/assets oncornalab/primerxl_circ:v0.30 /bin/fastahack-1.0.0/fastahack -i assets/GRCh38/index_fastahack/Homo_sapiens.GRCh38.dna.primary_assembly.fa
+# or do it with locally installed fastahack
+fastahack -i assets/GRCh38/index_fastahack/Homo_sapiens.GRCh38.dna.primary_assembly.fa
+```
 #### Bowtie
 In general, a combination of the cDNA and ncRNA index are used to test the specificity of the primers.
 
 ```bash
-wget ftp://ftp.ensembl.org/pub/release-101/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz
-gunzip Homo_sapiens.GRCh38.cdna.all.fa.gz
-wget ftp://ftp.ensembl.org/pub/release-101/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh38.ncrna.fa.gz
+# download the cDNA and ncRNA fasta files in the corresponding assests folder (/assets/GRCh38/index_bowtie/)
+wget https://ftp.ensembl.org/pub/release-111/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz
+gunzip Homo_sapiens.GRCh38.cdna.all.fa.gz 
+wget https://ftp.ensembl.org/pub/release-111/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh38.ncrna.fa.gz
 gunzip Homo_sapiens.GRCh38.ncrna.fa.gz
 cat Homo_sapiens.GRCh38.cdna.all.fa Homo_sapiens.GRCh38.ncrna.fa > hg38_cdna.fa
 rm Homo_sapiens.GRCh38.cdna.all.fa
 rm Homo_sapiens.GRCh38.ncrna.fa
-bowtie-build hg38_cdna.fa hg38_cdna
-```
-
-You do not need to install Bowtie locally to create the required indexes. Instead you can use the Docker container. For this, [Docker](https://docs.docker.com/get-docker/) needs to be installed on your computer.
-```bash
-docker run -v "$PWD/assets":/assets oncornalab/primerxl_circ:v0.27 /bin/bowtie-1.3.0-linux-x86_64/bowtie-build /assets/index_bowtie/hg38_cdna.fa /assets/index_bowtie/hg38_cdna
+# use oncornalab/primerxl_circ:v0.30 docker image to create the index (ran from the base folder FUSIONprimerXL)
+docker run -v "$PWD/assets":/assets oncornalab/primerxl_circ:v0.30 /bin/bowtie-1.3.0-linux-x86_64/bowtie-build /assets/GRCh38/index_bowtie/hg38_cdna.fa /assets/GRCh38/index_bowtie/hg38_cdna
+# or use locally installed software
+bowtie-build ./assets/GRCh38/index_bowtie/hg38_cdna.fa ./assets/GRCh38/index_bowtie/hg38_cdna
 ```
 
 

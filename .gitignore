@@ -14,3 +14,6 @@ assets/GRCz11/known_exons_GRCz11.bed
 assets/xenTro9/known_exons_xenTro9.bed
 bin/Single_record_retrieval_test.py
 bin/test.py
+assets/GRCh38/index_bowtie
+assets/GRCh38/index_fastahack
+
