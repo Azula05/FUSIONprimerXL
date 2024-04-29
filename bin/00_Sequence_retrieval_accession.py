@@ -6,8 +6,9 @@
 """
 This script imports sequences of specified accession numbers from the NCBI database
 Uses the start and end position specified by the user parts of the sequence are joined with * indicating the breakpoint (and of sequence 1,
-beginning of sequence 2)
-These sequences are then written to a file in the output directory and contain a header to check if the source is correct
+beginning of sequence 2). The program will use the defined breakpoint and take 150 nucleotides from each side of the breakpoint. If no 150
+nucleotides are available the program will take as many nucleotides as possible. These sequences are then written to a file in the output 
+directory and contain a header to check if the source is correct
 
 The provided input file should be a csv file with the following format:
 email address
@@ -17,8 +18,8 @@ Note: The start and end positions are 1 based counting, meaning that the first p
 
 Example:
 A.N.Other@example.com
-NM_000546, NM_000492, 1, 112, 210, 0
-NM_001371558, NM_000518, 1, 51, 1001, 0
+NM_000546, NM_000492, 153, 10
+NM_001371558, NM_000518, 60, 601
 
 The output file will be a text file with the following format:
 > DEFINITION ACCESSION 1: defenition; SOURCE: source
@@ -47,10 +48,12 @@ args = parser.parse_args()
 
 # save current working directory
 Base_dir = os.getcwd()
-# check if input file eists
+# check if input file exists
 if not os.path.exists(args.input_csv[0]):
     exit("Error: Input file does not exist")
-
+# check if it is a csv file
+if not args.input_csv[0].endswith(".csv"):
+    exit("Error: Input file is not a csv file")
 # check if output directory exists
 if not os.path.exists(args.output_dir[0]):
     exit("Error: Output directory does not exist")
@@ -76,9 +79,8 @@ with open(args.input_csv[0], 'r') as csvfile:
     else:
         line = [element.strip() for element in line]
         Accessions = Accessions + line[0:2]
-        starts = starts + [i for i in line[2::2]]
-        ends = ends + [i for i in line[3::2]]
-        line_nr += 1
+        ends.append(line[2])
+        starts.append(line[3])
 csvfile.close()
 
 # NCBI requires an email adress for authentication
@@ -89,29 +91,19 @@ del email
 # Change the positions from 1 based to 0 based counting (1 in start is from beginning, 0 in end is to end)
 start = []
 end = []
-
 for i in starts:
     i = int(i)
     if i == 0:
-        i = 1
+        exit("Error: Start position cannot be 0, please use 1 based counting")
     else:
         i -= 1
     start.append(i)
 for i in ends:
     i = int(i)
     if i == 0:
-        i = None
-    end.append(i)
-
-# A control to check if the beginning and end is correct
-def check_start_end(start_pos, end_pos, ID):
-    if end_pos == None:
-        return
+        exit("Error: End position cannot be 0, please use 1 based counting, please use 1 based counting")
     else:
-        if start_pos > end_pos:
-            exit("Error: Start position is greater than end position for fusion pair: " + str(ID+1))
-        elif start_pos == end_pos:
-            exit("Error: Start position is equal to end position for fusion pair: " + str(ID+1))
+        end.append(i)
 
 # Check if the number of start and end positions are equal
 if len(starts) != len(ends):
@@ -125,11 +117,22 @@ del ends
 
 # counters 
 ID = 0
-counter = 0
-num = 0
-
+seq_counter = 0
+pos_counter = 0
 # move to output directory
 os.chdir(args.output_dir[0])
+
+# function to take the surrounding 150 nucleotides of the breakpoint
+def left_150(sequence):
+    if len(sequence) < 150:
+        return sequence
+    else:
+        return sequence[-150:]
+def right_150(sequence):
+    if len(sequence) < 150:
+        return sequence
+    else:
+        return sequence[:150]
 
 # Open the sequence output file
 sequence_file = open("input_seq.txt", "w")
@@ -155,30 +158,28 @@ for Accession in Accessions:
         # get the sequence
     sequence = sequence_record.seq
     # First sequence
-    if counter % 2 == 0:
+    if seq_counter % 2 == 0:
         # start and end position of the sequence
-        if num != 0:
-            num+=1
-        start_pos = start[num]
-        end_pos = end[num]
-        check_start_end(start_pos, end_pos, ID)
+        end_pos = end[pos_counter]
+        start_pos = start[pos_counter]
         # Slice the sequence
-        sequence1 = sequence[start_pos:end_pos]
+        if end_pos > len(sequence):
+            end_pos = len(sequence)+1
+        sequence1 = sequence[:end_pos]
+        sequence1 = left_150(sequence1)
         # extract the header information
         first_Accession = Accession 
         defenition1 = sequence_record.description
         source1 = sequence_record.annotations.get("source", None)
         # write the first header line
-        sequence_file.write("> DEFENITION ACCESSION 1: " + defenition1 + "; SOURCE: " + source1 + "\n")
+        sequence_file.write("> DEFENITION ACCESSION 1: " + defenition1 + "; SOURCE: " + source1 + "\n") 
     # Second sequence
     else:
-        # start and end position of the sequence
-        num+=1
-        start_pos = start[num]
-        end_pos = end[num]
-        check_start_end(start_pos, end_pos, ID)
         # Slice the sequence
-        sequence2 = sequence[start_pos:end_pos]
+        if start_pos > len(sequence):
+            exit("Error: The start position is larger than the sequence length for " + Accession)
+        sequence2 = sequence[start_pos:]
+        sequence2 = right_150(sequence2)
         # extract the header information
         defenition2 = sequence_record.description
         source2 = sequence_record.annotations.get("source", None)
@@ -195,16 +196,15 @@ for Accession in Accessions:
         print("Retrieved sequence for: " + first_Accession +" and " + Accession)
         # Increase fusion gene ID
         ID+=1
+        pos_counter+=1
     # close the input file (genbank record)
     input_file.close()
     # remove the temporary genbank record file
     os.remove("sequence.gb")
-    counter+=1
+    # increase the sequence counter
+    seq_counter+=1
 # close the finished output file
 sequence_file.close()
 
 # move back to the base directory
 os.chdir(Base_dir)
-
-
-
