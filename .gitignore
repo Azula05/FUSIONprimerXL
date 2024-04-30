@@ -16,4 +16,6 @@ bin/Single_record_retrieval_test.py
 bin/test.py
 assets/GRCh38/index_bowtie
 assets/GRCh38/index_fastahack
+assets/GRCh38/Known_exons_GRCh38.111.bed
+
 
