@@ -5,9 +5,9 @@ import argparse
 This script is used to split up the input bed file into different fusion sequences generating a 
 bed file for each fusion sequence and a file text file containing all the fusions.
 The bed file should be in the following format:
-chrom1 start1 end1 chrom2 start2 end2
+chrom1  end     chrom2  start
 example:
-chr1	16606	17055   chr1	17232	17742
+chr1	17055   chr1	17232
 """
 ####################################################################################################
 ####################################  1. Parse arguments  ##########################################
@@ -48,14 +48,12 @@ for fusionRNA in input_file:
     ID_str = fusion_nr.format(ID)
 
     chrom1 = fusionRNA.split()[0]
-    start1 = str(fusionRNA.split()[1])
-    end1 = str(fusionRNA.split()[2])
-    chrom2 = fusionRNA.split()[3]
-    start2 = str(fusionRNA.split()[4])
-    end2 = str(fusionRNA.split()[5])
-    fusion_str = chrom1 + '\t' + start1 + '\t' + end1 + '\t' + chrom2 + '\t' + start2 + '\t' + end2
+    end= str(fusionRNA.split()[1])
+    chrom2 = fusionRNA.split()[2]
+    start = str(fusionRNA.split()[3])
+    fusion_str = chrom1 + '\t' + end + '\t' + chrom2 + '\t' + start
     # append to the all fusions list
-    all_fusions.append(chrom1 + ":" + start1 + "-" + end1 + "*" + chrom2 + ":" + start2 + "-" + end2)
+    all_fusions.append(chrom1 + ":" + end + "*" + chrom2 + start)
     # write the fusion to its own bed file
     ind_fusion_file = open(ID_str + ".bed", "w")
     ind_fusion_file.write(fusion_str + '\t' + ID_str + '\n')

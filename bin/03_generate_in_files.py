@@ -6,7 +6,7 @@ from Bio import Entrez, SeqIO
 import argparse
 import math
 
-# # get info on BSJ seq
+# # get info on BP seq
 parser = argparse.ArgumentParser(description='give arguments to main primer_xc script')
 parser.add_argument('-i', nargs=1, required=True, help='input fusions sequence file')
 parser.add_argument('-p', nargs=1, required=True, help='nr of primers')
