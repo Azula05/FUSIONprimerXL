@@ -75,7 +75,7 @@ if splice == "no":
 
     # retrieve left side of BP
     fasta_track.write(">end_" + str(fasta_end) + '\n')
-    fasta.write(fusion_chrom1.replace("chr", "") + ":" + str(fusion_end + 1 - temp_length) + "-" + str(fusion_end + 1) + "\n") # +1 to change to 1-based system
+    fasta.write(fusion_chrom1.replace("chr", "") + ":" + str(fusion_end +2 - temp_length ) + "-" + str(fusion_end + 1) + "\n") # +1 to change to 1-based system
     
     # retrieve right side of BP
     fasta_track.write(">start_" + str(fasta_start) + '\n')
