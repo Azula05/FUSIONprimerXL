@@ -35,25 +35,26 @@ sequence = sequence_file.readline().rstrip()
 ## change temperature to 60 degrees
 ## change salt to 0.05 M
 ## change the type of nucleic acid to DNA
-command = "RNAfold -i " + input_file + " -T 60 -P DNA --salt 0.05"
+command = "RNAfold -p -i " + input_file + " --noconv -T 60.0 -P DNA --salt 0.05"
 process = os.popen(command)
 output = process.read()
 process.close()  # Ensure proper resource management
-
 # Extract stdout from the command
-arguments = output.strip().split("\n")
+arguments = output.split("\n")
 
 # create an output file
 output = open('output_RNAfold_temp_' + fusion_ID + '.txt', 'w')
 ## fusion_ID
 output.write(arguments[0] + "\n")
 ## structure
-structure = arguments[2].split(" ")[0]
+structure = arguments[4].split(" ")[0]
 output.write(structure + "\n")
 ## delta_g
-delta_g = arguments[2].split(" ",1)[1]
+delta_g = arguments[3].split(" ",1)[1]
+ensemble_diversity = arguments[5]
 output.write(delta_g+ "\n") # delta_g
-output
+output.write(ensemble_diversity + "\n") # ensemble diversity
+
 
 ####################################################################################################
 ####################################     3. positions to avoid    ##################################

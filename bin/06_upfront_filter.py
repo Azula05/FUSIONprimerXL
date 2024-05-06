@@ -6,13 +6,20 @@ import argparse
 parser = argparse.ArgumentParser(description='give arguments to filter script')
 parser.add_argument("-i", nargs = 1, required=True, help='original primer3 file')
 parser.add_argument("-a", nargs = 1, required=True, help='template folding to avoid')
+parser.add_argument("-s", nargs=1, required=True, help='snp out')
 parser.add_argument("-f", nargs=1, required=True, help='shoud this step be included? no/yes/snp/str')
+parser.add_argument('-l', nargs=1, required=True, help='the nr of nucleotides surrounding the BSJ at each side')
+
 
 
 args = parser.parse_args()
+
+length = int(args.l[0])
 primer3_file = open(args.i[0])
 
-fusion_ID = primer3_file.readline().replace("SEQUENCE_ID=", "")
+circ_ID, chrom, start, end = primer3_file.readline().replace("SEQUENCE_ID=", "").split("_")
+start = int(start)
+end = int(end)
 
 
 primer3_file.close()
@@ -20,7 +27,7 @@ primer3_file.close()
 filter_on = args.f[0]
 primer3_file = open(args.i[0])
 
-primer3_file_new = open("primer3_file_" + fusion_ID + ".txt", 'w')
+primer3_file_new = open("primer3_file_" + circ_ID + ".txt", 'w')
 
 
 # copy complete file
@@ -33,7 +40,7 @@ for line in primer3_file:
 avoid_range = []
 
 # if this filter is on
-if filter_on == "on":
+if filter_on == 'yes' or filter_on == "str":
 	folding_file = open(args.a[0])
 
 	# get folding info
@@ -68,7 +75,7 @@ if filter_on == "on":
 				avoid_range.append([begin_region, length])
 				length = 1
 
-""" if filter_on == 'yes' or filter_on == "snp":
+if filter_on == 'yes' or filter_on == "snp":
 
 	SNPs = open(args.s[0]).readline()
 
@@ -77,9 +84,9 @@ if filter_on == "on":
 		SNPs = [ int(x) for x in SNPs ]
 
 		for snp in SNPs:
-			avoid_range.append([snp, 1]) """
+			avoid_range.append([snp, 1])
 
-if filter_on != "off":
+if filter_on != "no":
 		avoid_range_str = "SEQUENCE_EXCLUDED_REGION="
 
 		for element in avoid_range:
@@ -93,5 +100,3 @@ primer3_file_new.write("=\n")
 
 primer3_file.close()
 primer3_file_new.close()
-
-
