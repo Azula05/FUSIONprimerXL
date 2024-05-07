@@ -51,9 +51,7 @@ structure = arguments[4].split(" ")[0]
 output.write(structure + "\n")
 ## delta_g
 delta_g = arguments[3].split(" ",1)[1]
-ensemble_diversity = arguments[5]
 output.write(delta_g+ "\n") # delta_g
-output.write(ensemble_diversity + "\n") # ensemble diversity
 
 
 ####################################################################################################
