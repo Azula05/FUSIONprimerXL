@@ -69,24 +69,26 @@ for i in range(0, len(all_lines) - 1, 2):
 		fwd_MM, rev_MM = 0, 0
 		if len(fwd_spec) > 7:
 			fwd_MM = fwd_spec[7].count('>')
+			print(fwd_spec)
 		if len(rev_spec) > 7:
 			rev_MM = rev_spec[7].count('>')
+			print(rev_spec)
 		# check if the number of mismatches is below the threshold
 		if fwd_MM > 0 or rev_MM > 0:
-			if spec_filter == 'strict':
-				if fwd_MM + rev_MM < 5:
-					avoid_spec.append(all_lines[i].split("_")[2])
 			if spec_filter == 'loose':
-				if (fwd_MM + rev_MM < 3) or (fwd_MM == 1 & rev_MM == 2) or (fwd_MM == 2 & rev_MM == 1):
+				if fwd_MM + rev_MM > 5:
 					avoid_spec.append(all_lines[i].split("_")[2])
-		else:
-			avoid_spec.append(all_lines[i].split("_")[2])
+			if spec_filter == 'strict':
+				if (fwd_MM + rev_MM > 3) or (fwd_MM == 1 & rev_MM == 2) or (fwd_MM == 2 & rev_MM == 1):
+					avoid_spec.append(all_lines[i].split("_")[2])
+		"""else:
+			avoid_spec.append(all_lines[i].split("_")[2])"""
 
 
 print(avoid_spec)
 
 
-"""
+
 # get folding template from file
 fold_temp = open(args.t[0])
 
@@ -246,4 +248,3 @@ log_file.write(fusion_ID + '\t' + chrom1 + '\t' + str(end) + '\t' + chrom2 + '\t
 	str(passed) + '\t' + str(failed_spec) + "\t" + str(failed_SNP) + "\t" + 
 	str(failed_str_temp) + "\t" + str(failed_str_amp) + '\n' )
 log_file.close()
-"""
