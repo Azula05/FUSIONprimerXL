@@ -17,7 +17,7 @@ DEFAULT PARAMETERS (can be overwrittien in config file)
 ====================================================================================================
 */
 // Input file
-params.input_bed = "$baseDir/test/input_fusionRNAs.bed"
+params.input_bed = "$baseDir/input/input_fusionRNAs.bed"
 // Bowtie index
 params.index_bowtie = "$baseDir/assets/GRCh38/index_bowtie"
 params.index_bowtie_name = "hg38_cdna"
