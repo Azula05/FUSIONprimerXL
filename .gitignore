@@ -18,4 +18,5 @@ assets/GRCh38/index_bowtie
 assets/GRCh38/index_fastahack
 assets/GRCh38/Known_exons_GRCh38.111.bed
 all_primers
+Docker/scripts
 
