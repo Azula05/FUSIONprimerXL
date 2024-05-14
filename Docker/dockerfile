@@ -70,4 +70,8 @@ RUN apt-get install -y bowtie
 
 # bedtools
 RUN apt-get install -y bedtools
+
+# scripts
 WORKDIR /
+ADD scripts /usr/bin
+RUN chmod +x /usr/bin/01_split_fusionRNAs.py /usr/bin/02_Sequence_retrieval_chrom_pos.py /usr/bin/03_generate_in_files.py /usr/bin/04_get_SNPs.py /usr/bin/05_get_sec_str_temp.py /usr/bin/06_upfront_filter.py /usr/bin/07_split_primers.py /usr/bin/08_get_sec_str_amp.py /usr/bin/09_filter.py /usr/bin/10_gather_output.py /usr/bin/11_summary_run.py
