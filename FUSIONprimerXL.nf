@@ -198,7 +198,6 @@ if (params.min_tm.toInteger() > params.max_tm.toInteger() ) {exit 1, " min_tm an
 if (params.opt_tm.toInteger() > params.max_tm.toInteger() || params.opt_tm.toInteger() < params.min_tm.toInteger() ) {exit 1, " opt_tm: ${params.opt_tm} should > min_tm (${params.min_tm}) and < max_tm (${params.max_tm})"}
 if (params.min_gc.toInteger() > params.max_gc.toInteger() ) {exit 1, " min_gc and max_gc: max_gc (${params.min_gc}) should be > min_gc(${params.max_gc})"}
 if (params.opt_gc.toInteger() > params.max_gc.toInteger() || params.opt_gc.toInteger() < params.min_gc.toInteger() ) {exit 1, " opt_gc: ${params.opt_gc} should > min_gc (${params.min_gc}) and < max_gc (${params.max_gc})"}
-if (params.amp_min.toInteger() > params.amp_max.toInteger() ) {exit 1, " amp_min and amp_max: amp_max (${params.amp_max}) should be > amp_min (${params.amp_min})"}
 
 /*
 ====================================================================================================
@@ -213,23 +212,38 @@ OncoRNALab - Marieke Vromman / Arne Blom
 Github -
 Docker - 
 ==============================================
-your input file: ${params.input_seq}
+your input file: ${params.input_bed}
 your output directory: ${params.output_dir}
 """
 /*
 ====================================================================================================
-PROCESS 1 - splitting input file
+PROCESS 1 - splitting input bed file with fusionRNAs
 ====================================================================================================
 */
 // channels
 
 
 // process
+process split_fusionRNAs {
+	tag "split_fusionRNAs"
+	input:
+	path(input_bed_handle)
 
+	output:
+	path 'fusion*'
+	path 'start_time.txt'
+
+	"""
+	01_split_fusionRNAs.py -i $input_bed_handle
+	python3 -c 'from datetime import datetime; print(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))' > start_time.txt
+	"""
+}
 
 /*
 ====================================================================================================
 THE WORKFLOW
 ====================================================================================================
 */
-
+workflow {
+	split_fusionRNAs(input_bed)
+}
