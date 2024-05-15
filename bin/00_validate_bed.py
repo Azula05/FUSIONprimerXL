@@ -84,7 +84,7 @@ for line in input_bed:
 		continue
 
 	### check start smaller than start
-	if end >= start:
+	if end >= start & chrom1 == chrom2:
 		error = error + ("Error in bed input file: end (left) coordinate %d larger than (or equal to) start (right) coordinate %d at line %d \n" % (end, start, line_number))
 		continue
 
