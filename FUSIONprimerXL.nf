@@ -83,8 +83,8 @@ def helpMessage() {
 	
 	Usage:
 	
-	The typical command for running the pipeline is as follows:
-	nextflow run FUSIONprimerXL.nf -profile example 
+	The typical command for running the pipeline is as follows (standard = default parameters):
+	nextflow run FUSIONprimerXL.nf -profile standard 
 	
 	Mandatory nextflow arguments:
 	-profile 		set to 'local' when running locally, set to 'singularity' when running on the HPC
@@ -221,21 +221,56 @@ PROCESS 1 - splitting input bed file with fusionRNAs
 ====================================================================================================
 */
 // channels
-
+input_bed_handle = channel.fromPath(params.input_bed)
+chrom_file_handle = channel.fromPath(params.chrom_file)
 
 // process
 process split_fusionRNAs {
 	tag "split_fusionRNAs"
 	input:
 	path(input_bed_handle)
+	path(chrom_file_handle)
 
 	output:
 	path 'fusion*'
 	path 'start_time.txt'
+	path 'all_fusions.txt'
 
 	"""
+	00_validate_bed.py -i $input_bed_handle -c $chrom_file_handle
 	01_split_fusionRNAs.py -i $input_bed_handle
 	python3 -c 'from datetime import datetime; print(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))' > start_time.txt
+	"""
+}
+
+/*
+====================================================================================================
+PROCESS 2 - get_sequence of fusionRNAs
+====================================================================================================
+*/
+// process
+process get_sequence {
+	tag "get_sequence"
+	input:
+	file(ind_fusion_file_handle)
+	path(known_exons)
+	path(list_ENST)
+	path(index_fasta)
+
+	output:
+	tuple val("${ind_fusion_file_handle.baseName}"), path('annotation*.txt')
+	tuple val("${ind_fusion_file_handle.baseName}"), path('fasta_track.txt')
+	tuple val("${ind_fusion_file_handle.baseName}"), path('fasta_in.txt')
+	tuple val("${ind_fusion_file_handle.baseName}"), path('input_filter*')
+	tuple val("${ind_fusion_file_handle.baseName}"), path('input_get_sec_structure_*')
+	tuple val("${ind_fusion_file_handle.baseName}"), path('input_primer3_*')
+	tuple val("${ind_fusion_file_handle.baseName}"), path('input_SNP_*')
+	tuple val("${ind_fusion_file_handle.baseName}"), path('fasta_out.txt')
+	
+	"""
+	02_Sequence_retrieval_chrom_pos.py -n $params.temp_l -i $ind_fusion_file_handle -s $params.splice -e $known_exons -t $list_ENST
+	cat fasta_in.txt | fastahack -c $index_fasta/$params.index_fasta_name > fasta_out.txt
+	03_generate_in_files.py -i $ind_fusion_file_handle -p $params.primer3_nr -n $params.primer3_diff -a $params.min_tm -b $params.max_tm -c $params.opt_tm -d $params.diff_tm -e $params.min_gc -f $params.max_gc -g $params.opt_gc -j $params.amp_min -k $params.amp_max
 	"""
 }
 
@@ -245,5 +280,15 @@ THE WORKFLOW
 ====================================================================================================
 */
 workflow {
-	split_fusionRNAs(input_bed)
+	split_fusionRNAs(
+		input_bed_handle,
+		chrom_file_handle
+	)
+
+	get_sequence(
+		split_fusionRNAs.out[0].flatten(),
+		known_exons,
+		list_ENST,
+		index_fasta
+	)
 }
