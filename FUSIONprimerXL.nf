@@ -17,23 +17,23 @@ DEFAULT PARAMETERS (can be overwrittien in config file)
 ====================================================================================================
 */
 // Input file
-params.input_bed = "$baseDir/input/input_fusionRNAs.bed"
+params.input_bed = "$projectDir/input/input_fusionRNAs.bed"
 // Bowtie index
-params.index_bowtie = "$baseDir/assets/GRCh38/index_bowtie"
+params.index_bowtie = "$projectDir/assets/GRCh38/index_bowtie"
 params.index_bowtie_name = "hg38_cdna"
 // Fastahack index
-params.index_fasta = "$baseDir/assets/GRCh38/index_fastahack"
+params.index_fasta = "$projectDir/assets/GRCh38/index_fastahack"
 params.index_fasta_name = "Homo_sapiens.GRCh38.dna.primary_assembly.fa"
 // Primer3 settings
-params.primer_settings = "$baseDir/assets/primer3_settings.txt"
+params.primer_settings = "$projectDir/assets/primer3_settings.txt"
 // chromosome sizes
-params.chrom_file = "$baseDir/assets/GRCh38/chrom_sizes_GRCh38.txt"
+params.chrom_file = "$projectDir/assets/GRCh38/chrom_sizes_GRCh38.txt"
 // known exons
-params.known_exons = "$baseDir/assets/GRCh38/Known_exons_GRCh38.111.bed"
+params.known_exons = "$projectDir/assets/GRCh38/Known_exons_GRCh38.111.bed"
 // ENST_list
-params.list_ENST = "$baseDir/assets/GRCh38/ENST_list_GRCh38.txt"
+params.list_ENST = "$projectDir/assets/GRCh38/ENST_list_GRCh38.txt"
 // output directory
-params.output_dir = "$baseDir/output/"
+params.output_dir = "$projectDir/output/"
 // splice
 params.splice = 'yes'
 // Primer3 parameters:
@@ -228,8 +228,8 @@ chrom_file_handle = channel.fromPath(params.chrom_file)
 process split_fusionRNAs {
 	tag "split_fusionRNAs"
 	input:
-	path(input_bed_handle)
-	path(chrom_file_handle)
+	path('input_bed_handle')
+	path('chrom_file_handle')
 
 	output:
 	path 'fusion*'
@@ -252,10 +252,10 @@ PROCESS 2 - get_sequence of fusionRNAs
 process get_sequence {
 	tag "get_sequence"
 	input:
-	file(ind_fusion_file_handle)
-	path(known_exons)
-	path(list_ENST)
-	path(index_fasta)
+	file('ind_fusion_file_handle')
+	path('known_exons')
+	path('list_ENST')
+	path('index_fasta')
 
 	output:
 	tuple val("${ind_fusion_file_handle.baseName}"), path('annotation*.txt')
@@ -273,6 +273,77 @@ process get_sequence {
 	03_generate_in_files.py -i $ind_fusion_file_handle -p $params.primer3_nr -n $params.primer3_diff -a $params.min_tm -b $params.max_tm -c $params.opt_tm -d $params.diff_tm -e $params.min_gc -f $params.max_gc -g $params.opt_gc -j $params.amp_min -k $params.amp_max
 	"""
 }
+/*
+====================================================================================================
+PROCESS 3 - get single nucleotide polymorphisms
+====================================================================================================
+*/
+
+// process
+process get_SNPs {
+	tag "get_SNPs"
+	input:
+	tuple val(snp_id), path('in_SNP_handle')
+	tuple val(snp_id), path('fasta_SNP_handle')
+	tuple val(snp_id), path('fasta_track_handle')
+
+	output:
+	tuple val('snp_id'), path('output_SNP_*')
+
+	"""
+	04_get_SNPs.py -i $in_SNP_handle -u $params.snp_url -f $fasta_SNP_handle -t $fasta_track_handle
+	"""
+}
+
+/*
+====================================================================================================
+PROCESS 4 - folding_template
+====================================================================================================
+*/
+
+process folding_template {
+	tag "folding_template"
+
+	input:
+	tuple val(fold_id_t), path('inp_fold_handle')
+
+	output:
+	tuple val(fold_id_t), path('output_RNAfold_temp_*')
+
+	"""
+	05_get_sec_str_temp.py -i $inp_fold_handle
+	"""
+}
+
+/*
+====================================================================================================
+PROCESS 5 - getting primers
+====================================================================================================
+*/
+
+process get_primers {
+
+	tag "get_primers"
+
+	publishDir "$params.output_dir/primer3_details", mode: 'copy', pattern: 'output_primer3_*'
+	
+	input:
+	tuple val(u_filter_id), path('out_folding_template_upfront_filter_handle'), path('in_primer3_handle'), path('out_SNP_upfront_filter_handle')
+	path(primer_settings_handle)
+ 
+	output:
+	tuple val(u_filter_id), path('amplicon_folding_input_fusion*')
+	tuple val(u_filter_id), path('all_primers_fusion*')
+	path('primer_spec_input_fusion*')
+	path('output_primer3_*')
+
+	"""
+	06_upfront_filter.py -i in_primer3_handle -a out_folding_template_upfront_filter_handle -f $params.upfront_filter -s out_SNP_upfront_filter_handle -l $params.temp_l
+	primer3 --output=output_primer3_${u_filter_id}.txt --p3_settings_file=$primer_settings_handle primer3_file*
+	07_split_primers.py -i output_primer3_${u_filter_id}.txt
+	"""
+}
+
 
 /*
 ====================================================================================================
@@ -286,9 +357,30 @@ workflow {
 	)
 
 	get_sequence(
+		//ind_fusion_file_handle
 		split_fusionRNAs.out[0].flatten(),
 		known_exons,
 		list_ENST,
 		index_fasta
 	)
+
+	get_SNPs (
+		// in_SNP_handle
+		get_sequence.out[6],
+		// fasta_SNP_handle
+		get_sequence.out[2],
+		// fasta_track_handle
+		get_sequence.out[1]
+	)
+
+	folding_template (
+		// inp_fold_handle
+		get_sequence.out[4]
+	)
+
+	get_primers(
+		folding_template.out[0].join(get_sequence.out[5]).join(get_SNPs.out[0]).groupTuple(),
+		params.primer_settings
+	)
+
 }
