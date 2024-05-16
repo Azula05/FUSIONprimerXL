@@ -54,7 +54,7 @@ RUN wget https://github.com/primer3-org/primer3/archive/refs/tags/v2.6.1.zip
 RUN unzip v2.6.1.zip
 WORKDIR /bin/primer3-2.6.1/src
 RUN make all
-RUN mv primer3_core /bin/primer3
+RUN mv primer3_core /bin/primer3_core
 WORKDIR /bin
 RUN rm -rf primer3-2.6.1 v2.6.1.zip
 
