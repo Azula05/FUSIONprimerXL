@@ -32,14 +32,8 @@ primer3_settings = args.x[0]
 # Extract the fusion ID from the input file name
 fusion_ID = input_file.split('_')[2].split('.')[0]
 
-base = os.getcwd()
-# check if folder /primer3_detais exists in output folder if not make one
-path = os.path.join(args.y[0], "primer3_details")
-if not os.path.exists(path):
-    os.makedirs(path)
-
 # construct the command to run primer3
-command = "primer3_core --output=" + path + "/output_primer3_" + fusion_ID + ".txt --p3_settings_file=" + primer3_settings + " " + input_file
+command = "primer3_core --output=output_primer3_" + fusion_ID + ".txt --p3_settings_file=" + primer3_settings + " " + input_file
 print(command)
 
 # Run primer3
