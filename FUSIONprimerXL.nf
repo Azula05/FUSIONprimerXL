@@ -248,24 +248,27 @@ process split_fusionRNAs {
 PROCESS 2 - get_sequence of fusionRNAs
 ====================================================================================================
 */
+
 // process
 process get_sequence {
 	tag "get_sequence"
+
 	input:
-	file('ind_fusion_file_handle')
+	path(ind_fusion_file_handle)
 	path('known_exons')
 	path('list_ENST')
 	path('index_fasta')
 
 	output:
-	tuple val("${ind_fusion_file_handle.baseName}"), path('annotation*.txt')
-	tuple val("${ind_fusion_file_handle.baseName}"), path('fasta_track.txt')
-	tuple val("${ind_fusion_file_handle.baseName}"), path('fasta_in.txt')
-	tuple val("${ind_fusion_file_handle.baseName}"), path('input_filter*')
-	tuple val("${ind_fusion_file_handle.baseName}"), path('input_get_sec_structure_*')
-	tuple val("${ind_fusion_file_handle.baseName}"), path('input_primer3_*')
-	tuple val("${ind_fusion_file_handle.baseName}"), path('input_SNP_*')
-	tuple val("${ind_fusion_file_handle.baseName}"), path('fasta_out.txt')
+	tuple val("${ind_fusion_file_handle.getBaseName()}"), path('annotation*.txt')
+	tuple val("${ind_fusion_file_handle.getBaseName()}"), path('fasta_track.txt')
+	tuple val("${ind_fusion_file_handle.getBaseName()}"), path('fasta_in.txt')
+	tuple val("${ind_fusion_file_handle.getBaseName()}"), path('input_filter*')
+	tuple val("${ind_fusion_file_handle.getBaseName()}"), path('input_get_sec_structure_*')
+	tuple val("${ind_fusion_file_handle.getBaseName()}"), path('input_primer3_*')
+	tuple val("${ind_fusion_file_handle.getBaseName()}"), path('input_SNP_*')
+	tuple val("${ind_fusion_file_handle.getBaseName()}"), path('fasta_out.txt')
+
 	
 	"""
 	02_Sequence_retrieval_chrom_pos.py -n $params.temp_l -i $ind_fusion_file_handle -s $params.splice -e $known_exons -t $list_ENST
@@ -273,6 +276,7 @@ process get_sequence {
 	03_generate_in_files.py -i $ind_fusion_file_handle -p $params.primer3_nr -n $params.primer3_diff -a $params.min_tm -b $params.max_tm -c $params.opt_tm -d $params.diff_tm -e $params.min_gc -f $params.max_gc -g $params.opt_gc -j $params.amp_min -k $params.amp_max
 	"""
 }
+
 /*
 ====================================================================================================
 PROCESS 3 - get single nucleotide polymorphisms
@@ -282,13 +286,14 @@ PROCESS 3 - get single nucleotide polymorphisms
 // process
 process get_SNPs {
 	tag "get_SNPs"
+
 	input:
 	tuple val(snp_id), path('in_SNP_handle')
 	tuple val(snp_id), path('fasta_SNP_handle')
 	tuple val(snp_id), path('fasta_track_handle')
 
 	output:
-	tuple val('snp_id'), path('output_SNP_*')
+	tuple val(snp_id), path('output_SNP_*')
 
 	"""
 	04_get_SNPs.py -i $in_SNP_handle -u $params.snp_url -f $fasta_SNP_handle -t $fasta_track_handle
@@ -317,32 +322,117 @@ process folding_template {
 
 /*
 ====================================================================================================
-PROCESS 5 - getting primers
+PROCESS 5 - upfront filter
+====================================================================================================
+*/
+
+process upfront_filter{
+	tag "upfront_filter"
+
+	input:
+	tuple val(upfront_filter_id), path(input_primer3_handle), path(out_RNAfold_temp_handle), path(input_SNP_handle)
+
+	output:
+	tuple val(upfront_filter_id), path('primer3_file_*')
+
+	"""
+	06_upfront_filter.py -i $input_primer3_handle -a $out_RNAfold_temp_handle -s $input_SNP_handle -f $params.upfront_filter -l $params.temp_l
+	"""
+}
+
+/*
+====================================================================================================
+PROCESS 6 - primer3
 ====================================================================================================
 */
 
 process get_primers {
-
 	tag "get_primers"
-
 	publishDir "$params.output_dir/primer3_details", mode: 'copy', pattern: 'output_primer3_*'
-	
-	input:
-	tuple val(u_filter_id), path('out_folding_template_upfront_filter_handle'), path('in_primer3_handle'), path('out_SNP_upfront_filter_handle')
-	path(primer_settings_handle)
- 
-	output:
-	tuple val(u_filter_id), path('amplicon_folding_input_fusion*')
-	tuple val(u_filter_id), path('all_primers_fusion*')
-	path('primer_spec_input_fusion*')
-	path('output_primer3_*')
 
+	input:
+	tuple val(primer3_id), path(primer3_file_handle)
+	path(primer_settings_handle)
+
+	output:
+	tuple val(primer3_id), path('output_primer3_*')
+
+	
 	"""
-	06_upfront_filter.py -i in_primer3_handle -a out_folding_template_upfront_filter_handle -f $params.upfront_filter -s out_SNP_upfront_filter_handle -l $params.temp_l
-	primer3 --output=output_primer3_${u_filter_id}.txt --p3_settings_file=$primer_settings_handle primer3_file*
-	07_split_primers.py -i output_primer3_${u_filter_id}.txt
+	06_primer3.py -i $primer3_file_handle -x $primer_settings_handle
 	"""
 }
+
+/*
+====================================================================================================
+PROCESS 7 - split primers
+====================================================================================================
+*/
+process split_primers {
+	tag "split_primers"
+	
+	input:
+	tuple val(primer3_id), path(output_primer3_handle)
+
+	output:
+	tuple val(primer3_id), path('amplicon_folding_input_fusion*')
+	tuple val(primer3_id), path('all_primers_fusion*')
+	tuple val(primer3_id), path('primer_spec_input_fusion*')
+
+	"""
+	07_split_primers.py -i $output_primer3_handle
+	"""
+}
+
+/*
+====================================================================================================
+PROCESS 8 - folding_amplicon
+====================================================================================================
+*/
+
+process folding_amplicon {
+	tag "folding_amplicon"
+
+	input:
+	tuple val(fold_amp_id), path(amplicon_folding_input_handle)
+
+	output:
+	tuple val(fold_amp_id), path('output_RNAfold_amp_*')
+
+	"""
+	08_get_sec_str_amp.py -i $amplicon_folding_input_handle
+	"""
+}
+
+/*
+====================================================================================================
+PROCESS 9 - primer specificity
+====================================================================================================
+*/
+
+process specificity_primers {
+	tag "specificity_primers"
+
+	input:
+	tuple val(spec_id), path(primer_spec_input_handle)
+	path(bowtie_index)
+
+	output:
+	tuple val(spec_id), path('primer_spec_input_all_fusion.txt')
+	tuple val(spec_id), path('out_spec_primer.txt')
+
+	"""
+	cat $primer_spec_input_handle > primer_spec_input_all_fusion.txt
+	bowtie --tryhard -X1000 -v3 --quiet -x $bowtie_index/$params.index_bowtie_name --threads ${task.cpus} --12 primer_spec_input_all_fusion.txt > out_spec_primer.txt
+	"""
+}
+
+/*
+====================================================================================================
+PROCESS 10 - filter_primers
+====================================================================================================
+*/
+
 
 
 /*
@@ -378,9 +468,27 @@ workflow {
 		get_sequence.out[4]
 	)
 
-	get_primers(
-		folding_template.out[0].join(get_sequence.out[5]).join(get_SNPs.out[0]).groupTuple(),
+	upfront_filter (
+		get_sequence.out[5].join(folding_template.out[0]).join(get_SNPs.out[0]).groupTuple()
+	)
+
+	get_primers (
+		upfront_filter.out[0],
 		params.primer_settings
 	)
+
+	split_primers (
+		get_primers.out[0]
+	)
+
+	folding_amplicon (
+		split_primers.out[0]
+	)
+
+	specificity_primers (
+		split_primers.out[2],
+		index_bowtie
+	)
+
 
 }
