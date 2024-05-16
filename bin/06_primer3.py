@@ -19,6 +19,7 @@ import argparse
 parser = argparse.ArgumentParser(description='give the arguments to the primer3 script to execute primer3 with correct output file names')
 parser.add_argument('-i',nargs=1, required=True, help='input primer3_file_fusionID.txt')
 parser.add_argument('-x', nargs=1, required=True, help='primer3 settings file')
+parser.add_argument('-y', nargs=1, required=True, help='output location')
 args = parser.parse_args()
 
 input_file = args.i[0]
@@ -31,8 +32,15 @@ primer3_settings = args.x[0]
 # Extract the fusion ID from the input file name
 fusion_ID = input_file.split('_')[2].split('.')[0]
 
+base = os.getcwd()
+# check if folder /primer3_detais exists in output folder if not make one
+path = os.path.join(args.y[0], "primer3_details")
+if not os.path.exists(path):
+    os.makedirs(path)
+
 # construct the command to run primer3
-command = "primer3_core --output=output_primer3_" + fusion_ID + ".txt --p3_settings_file=" + primer3_settings + " " + input_file
+command = "primer3_core --output=" + path + "/output_primer3_" + fusion_ID + ".txt --p3_settings_file=" + primer3_settings + " " + input_file
+print(command)
 
 # Run primer3
 try:
