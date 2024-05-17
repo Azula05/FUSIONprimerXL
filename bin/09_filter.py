@@ -15,7 +15,9 @@ And outputs a file with filtered primers and a log file with the results of the 
 The log file contains the following columns:
 fusion_ID, chrom1, end, chrom2, start, design, primer_found, total_primers, passed, failed_spec, failed_SNP, failed_str_temp, failed_str_amp
 """
-
+####################################################################################################
+####################################  1. Parse arguments  ##########################################
+####################################################################################################
 import argparse
 import os
 
@@ -37,9 +39,11 @@ length = int(args.l[0])
 SNP_filter = args.f[0]
 spec_filter = args.p[0]
 
+####################################################################################################
+#####################################    2. Processing   ###########################################
+####################################################################################################
 
 # get general info fusionRNA
-
 fusionRNA = all_fusion.read()
 
 chrom1 = fusionRNA.split()[0]
@@ -50,7 +54,7 @@ fusion_ID = fusionRNA.split()[4]
 
 
 
-# get specificity info from file
+# get specificity info from file (bowtie output)
 spec = open(args.b[0])
 avoid_spec = []
 all_lines = []
@@ -59,8 +63,18 @@ for line in spec:
 	all_lines.append(line)
 spec.close()
 
+####################################################################################################
+#################################    A. specificity filter  ########################################
+####################################################################################################
 
-# rules from https://academic.oup.com/clinchem/article/59/10/1470/5622018?login=true fig 6
+# rules from https://academic.oup.com/clinchem/article/59/10/1470/5622018?login=true fig 6 are used as filter criteria
+# The criteria are:
+# Strict: 
+# - less than 3 mismatches in both forward and reverse primer combined
+# - 1 mismatch in forward and 2 in reverse or vice versa is not allowed
+# Loose:
+# - 5 or less mismatches in both forward and reverse primer combined
+
 for i in range(0, len(all_lines) - 1, 2):
 	fwd_spec = all_lines[i].split()
 	rev_spec = all_lines[i+1].split()
@@ -69,25 +83,31 @@ for i in range(0, len(all_lines) - 1, 2):
 		fwd_MM, rev_MM = 0, 0
 		if len(fwd_spec) > 7:
 			fwd_MM = fwd_spec[7].count('>')
+
 		if len(rev_spec) > 7:
 			rev_MM = rev_spec[7].count('>')
+
 		# check if the number of mismatches is below the threshold
 		if fwd_MM > 0 or rev_MM > 0:
-			if spec_filter == 'strict':
-				if fwd_MM + rev_MM < 5:
-					avoid_spec.append(all_lines[i].split("_")[2])
+			# LOOSE
 			if spec_filter == 'loose':
-				if (fwd_MM + rev_MM < 3) or (fwd_MM == 1 & rev_MM == 2) or (fwd_MM == 2 & rev_MM == 1):
+				if fwd_MM + rev_MM > 5:
 					avoid_spec.append(all_lines[i].split("_")[2])
-		else:
-			avoid_spec.append(all_lines[i].split("_")[2])
+			# STRICT
+			if spec_filter == 'strict':
+				if (fwd_MM + rev_MM > 3) or (fwd_MM == 1 & rev_MM == 2) or (fwd_MM == 2 & rev_MM == 1):
+					avoid_spec.append(all_lines[i].split("_")[2])
+		"""else:
+			avoid_spec.append(all_lines[i].split("_")[2])"""
 
 
-print(avoid_spec)
 
+####################################################################################################
+#################################    3. masked positions    ########################################
+####################################################################################################
 
-"""
-# get folding template from file
+# A. Template secundary structure
+## get folding template from file
 fold_temp = open(args.t[0])
 
 skip = fold_temp.readline()
@@ -95,24 +115,27 @@ skip = fold_temp.readline()
 skip = fold_temp.readline()
 fold_temp_avoid = fold_temp.readline()
 
-# make a list from the positions
+## make a list from the positions to avoid based on folding template
 if fold_temp_avoid != '[]':
 	fold_temp_avoid = fold_temp_avoid.replace('[', "").replace(']', '').split(', ')
 	fold_temp_avoid = [ int(x) for x in fold_temp_avoid ]
 
 
-# snps
+# B. Single nucleotide polymorphisms
+## get SNP positions from file
 SNPs = open(args.s[0]).readline()
-
+## if no SNPs are present, set SNP_avoid to none
 SNP_avoid = 'none'
 
-# make a list from the positions
+## make a list from the positions
 if SNPs != '[]':
 	SNPs = SNPs.replace('[', "").replace(']', '').split(', ')
 	SNP_avoid = [ int(x) for x in SNPs ]
 
 
-# get amplicon folding info into dicts
+
+# C. Amplicon secundary structure
+## get amplicon folding info into dicts
 amp_fold = open(args.a[0])
 amp_fold_avoid = {}
 amp_fold_avoid_pos = {}
@@ -126,9 +149,14 @@ for lin in amp_fold:
 	
 amp_fold.close()
 
+####################################################################################################
+#################################    4. LOG file generation    #####################################
+####################################################################################################
 
 # filter all primers and write to file
+# a filter string will be used to check if the primer passes certain conditions or not
 
+# create an output file in the all primers folder
 all_primers = open(args.P[0])
 primer_file = open("all_primers/filtered_primers_" + fusion_ID + '_' + chrom1 + '_' + str(end) + '_' + chrom2 + '_' + str(start) + "_.txt", "a")
 
@@ -160,24 +188,27 @@ for primer in all_primers:
 	# create ranges from the forward and reverse positions
 	FWD_poss = range(FWD_pos, FWD_pos + FWD_len)
 	REV_poss = range(REV_pos - REV_len, REV_pos)
+	# create filter string
 	filter_str = ""
 
-	# check specificity
+	# check specificity (see earlier)
 	if primer_ID in avoid_spec:
 		filter_str = filter_str + "FAIL_specificity_"
 
-	# check snps
-	
+	####################################################################################################
+	#########################################   B. SNP filter   ########################################
+	####################################################################################################
 	if (SNP_filter != 'off') & (SNP_avoid != 'none'):
+		# STRICT
 		if SNP_filter == 'strict':
 			if any(x in FWD_poss for x in SNP_avoid):
 				filter_str = filter_str + "FAIL_snp_F_"
 			if any(x in REV_poss for x in SNP_avoid):
 				filter_str = filter_str + 'FAIL_snp_R_'
-			
-
+		
+		# LOOSE
 		if SNP_filter == 'loose':
-			
+			# 5 end based
 			FWD_poss_5end = FWD_poss[0:int(len(FWD_poss)/2)]
 			REV_poss_5end = REV_poss[int(len(REV_poss)/2):]
 
@@ -187,14 +218,19 @@ for primer in all_primers:
 			if any(x in REV_poss_5end for x in SNP_avoid):
 				filter_str = filter_str + 'FAIL_snp_R_'
 
+	####################################################################################################
+	#################################    C. template sec struc filter  #################################
+	####################################################################################################
 	# check folding template
 	if any(x in FWD_poss for x in fold_temp_avoid):
 		filter_str = filter_str + 'FAIL_fold_template_F_'
 	if any(x in REV_poss for x in fold_temp_avoid):
 		filter_str = filter_str + 'FAIL_fold_template_R_'
 
-	# check folding amplicon
 
+	####################################################################################################
+	#################################    D. amplicon sec struc filter  #################################
+	####################################################################################################
 	fold_amp_avoid = amp_fold_avoid_pos["primer" + str(primer_ID)]
 
 	if fold_amp_avoid != '[]':
@@ -216,6 +252,7 @@ for primer in all_primers:
 	if filter_str == "":
 		filter_str = "PASS_"
 		primer_found = 1
+		primer_file.write(primer.rstrip() + "\t" + filter_str[0:len(filter_str)-1] + "\n")
 
 	# gather info to add to log file
 	if filter_str == "PASS_":
@@ -229,21 +266,15 @@ for primer in all_primers:
 	if "FAIL_fold_amplicon" in filter_str:
 		failed_str_amp += 1
 
-
-	primer_file.write(primer.rstrip() + "\t" + filter_str[0:len(filter_str)-1] + "\n")
 # end of primer loop
 
 primer_file.close()
 all_primers.close()
 
-# print log file
-log_file = open("log_file_" + fusion_ID + ".txt", "w")
-log_file.write("fusion_ID\tchrom1\tend\tchrom2\tstart\tdesign\tprimer_found\ttotal_primers\tpassed\tfailed_spec\tfailed_SNP\tfailed_str_temp\tfailed_str_amp\n")
-log_file.close()
+# write log file
 log_file = open("log_file_" + fusion_ID + ".txt", "a")
 log_file.write(fusion_ID + '\t' + chrom1 + '\t' + str(end) + '\t' + chrom2 + '\t' + str(start) + '\t' + 
 	str(design) + "\t" + str(primer_found) + "\t" + str(total_primers) + "\t" + 
 	str(passed) + '\t' + str(failed_spec) + "\t" + str(failed_SNP) + "\t" + 
 	str(failed_str_temp) + "\t" + str(failed_str_amp) + '\n' )
 log_file.close()
-"""

@@ -19,7 +19,6 @@ import argparse
 parser = argparse.ArgumentParser(description='give the arguments to the primer3 script to execute primer3 with correct output file names')
 parser.add_argument('-i',nargs=1, required=True, help='input primer3_file_fusionID.txt')
 parser.add_argument('-x', nargs=1, required=True, help='primer3 settings file')
-parser.add_argument('-y', nargs=1, required=True, help='output location')
 args = parser.parse_args()
 
 input_file = args.i[0]
