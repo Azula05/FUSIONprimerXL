@@ -54,7 +54,6 @@ if os.path.getsize(input_file) == 0:
 # B. if primer3 was able to design primers for this fusion transcript
 else: 
 	primer_found = "no"
-	output.write("fusion_ID\tprimer_ID\tFWD\tREV\tFWD_posistion\tFWD_length\tREV_position\tREV_length\tprimer_left_TM\tprimer_right_TM\tprimer_left_GC_perc\tprimer_right_GC_perc\tamplicon\tfilter\tleft_annotation\tright_annotation\tsplicing\n")
 	# filter primers according to the filter string
 	for primer in all_primers:
 		filter_str = primer.split()[-1]

@@ -44,7 +44,7 @@ args = parser.parse_args()
 ####################################################################################################
 
 # log file
-log_file = pd.read_csv(open(args.l[0]), sep = "\t")
+log_file = pd.read_csv(open(args.l[0]), sep = "\t", usecols = ['fusion_ID', 'chrom1', 'end',  'chrom2',  'start', 'design', 'primer_found', 'total_primers',  'passed',  'failed_spec', 'failed_SNP', 'failed_str_temp',  'failed_str_amp'])
 # start time
 start_time = open(args.s[0])
 # output directory
@@ -66,6 +66,7 @@ for line in all_fusions:
 	total_nr_fusion += 1
 	# key = fusion ID, value = [chrom1, end, chrom2, start]
 	all_fusions_dict[line.rstrip().split('\t')[0]] = line.rstrip().split('\t')[1:]
+
 
 # calculate the parameters
 primer_found = log_file['primer_found'].sum()

@@ -273,7 +273,6 @@ all_primers.close()
 
 # write log file
 log_file = open("log_file_" + fusion_ID + ".txt", "a")
-log_file.write("fusion_ID\tchrom1\tend\tchrom2\tstart\tdesign\tprimer_found\ttotal_primers\tpassed\tfailed_spec\tfailed_SNP\tfailed_str_temp\tfailed_str_amp\n")
 log_file.write(fusion_ID + '\t' + chrom1 + '\t' + str(end) + '\t' + chrom2 + '\t' + str(start) + '\t' + 
 	str(design) + "\t" + str(primer_found) + "\t" + str(total_primers) + "\t" + 
 	str(passed) + '\t' + str(failed_spec) + "\t" + str(failed_SNP) + "\t" + 

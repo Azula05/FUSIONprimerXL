@@ -433,7 +433,61 @@ PROCESS 10 - filter_primers
 ====================================================================================================
 */
 
+process filter_primers {
+	tag "filter_primers"
 
+	input:
+
+		tuple val(filter_id), path(input_filter_handle), path(all_primers_handle), path(output_SNP_handle), path(output_RNAfold_temp_handle), path(output_RNAfold_amp_handle), path(out_spec_primer_handle), path(annotation_splice_handle)
+
+	output:
+
+		path('selected_primers_*')
+		path('all_primers')
+		path('log_file_*')
+
+	"""
+	mkdir all_primers
+	09_filter.py -A $input_filter_handle -P $all_primers_handle -l 150 -s $output_SNP_handle -t $output_RNAfold_temp_handle -a $output_RNAfold_amp_handle -b $out_spec_primer_handle -p strict -f strict
+	10_gather_output.py -i all_primers/filtered_primers_* -a $annotation_splice_handle
+	"""
+}
+
+/*
+====================================================================================================
+PROCESS 11 - print_output
+====================================================================================================
+*/
+
+process print_output {
+
+	tag "print_output"
+	publishDir params.output_dir, mode: 'copy'
+
+	input:
+	path('results_per_fusion*')
+	path('log_file_per_fusion*')
+	path('start_time_file')
+	path('all_primer_files')
+	path('all_fusions_file')
+
+
+	output:
+	path('all_primers')
+	path('filtered_primers.txt')
+	path('log_file.txt')
+	path('summary_run.txt')
+
+	"""
+	mkdir all_primers
+	cp all_primer_files*/* all_primers/
+	echo "fusion_ID\tprimer_ID\tFWD\tREV\tFWD_posistion\tFWD_length\tREV_position\tREV_length\tprimer_left_TM\tprimer_right_TM\tprimer_left_GC_perc\tprimer_right_GC_perc\tamplicon\tfilter\tleft_annotation\tright_annotation \tsplicing" > filtered_primers.txt
+	cat results_per_fusion* >> filtered_primers.txt
+	echo "fusion_ID\tchrom1\tend\tchrom2\tstart\tdesign\tprimer_found\ttotal_primers\tpassed\tfailed_spec\tfailed_SNP\tfailed_str_temp\tfailed_str_amp" > log_file.txt
+	cat log_file_per_fusion* >> log_file.txt
+	11_summary_run.py -l log_file.txt -s start_time_file -o . -u $params.upfront_filter -a all_fusions_file
+	"""
+}
 
 /*
 ====================================================================================================
@@ -490,5 +544,16 @@ workflow {
 		index_bowtie
 	)
 
+	filter_primers (
+		get_sequence.out[3].join(split_primers.out[1]).join(get_SNPs.out[0]).join(folding_template.out[0]).join(folding_amplicon.out[0]).join(specificity_primers.out[1]).join(get_sequence.out[0]).groupTuple()
+	)
+
+	print_output(
+		filter_primers.out[0].collect(),
+		filter_primers.out[2].collect(),
+		split_fusionRNAs.out[1],
+		filter_primers.out[1].collect(),
+		split_fusionRNAs.out[2]
+	)
 
 }
