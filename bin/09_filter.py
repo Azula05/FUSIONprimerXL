@@ -70,14 +70,40 @@ spec.close()
 # rules from https://academic.oup.com/clinchem/article/59/10/1470/5622018?login=true fig 6 are used as filter criteria
 # The criteria are:
 # Strict: 
-# - less than 3 mismatches in both forward and reverse primer combined
-# - 1 mismatch in forward and 2 in reverse or vice versa is not allowed
+# - no mismatches in either primer = off-target and is discarted
+# - primers with at least 4 mismatches for a single primer = no off-target and is kept
+# - primers with a total of at least 5 mismatches between both primers = no off-target and is kept
 # Loose:
-# - 5 or less mismatches in both forward and reverse primer combined
+# - primers with at least 3 mismatches for a single primer = no off-target and is kept
+# - primers with a total of at least 4 mismatches between both primers = no off-target and is kept
 
+# MM primer1	MM primer2	sum MM	loose			strict
+# 0				0			0		off-target		off-target
+# 1				0			1		off-target		off-target
+# 0				1			1		off-target		off-target
+# 2				0			2		off-target		off-target
+# 0				2			2		off-target		off-target
+# 1				1			2		off-target		off-target
+# 2				1			3		off-target		off-target
+# 1				2			3		off-target		off-target
+# 3				0			3		no off-target	off-target
+# 0				3			3		no off-target	off-target
+# 1				3			4		no off-target	off-target
+# 3				1			4		no off-target	off-target
+# 2				2			4		no off-target	off-target
+# 4				0			4		no off-target	no off-target
+# 0				4			4		no off-target	no off-target
+# 2				3			5		no off-target	no off-target
+# 3				2			5		no off-target	no off-target
+# 4				1			5		no off-target	no off-target
+# 1				4			5		no off-target	no off-target
+# 3				3			6		no off-target	no off-target
+
+# get the specificity info from the file
 for i in range(0, len(all_lines) - 1, 2):
 	fwd_spec = all_lines[i].split()
 	rev_spec = all_lines[i+1].split()
+	# loop
 	if fusion_ID == all_lines[i].split("_")[0]:
 		# get the number of mismatches
 		fwd_MM, rev_MM = 0, 0
@@ -87,19 +113,31 @@ for i in range(0, len(all_lines) - 1, 2):
 		if len(rev_spec) > 7:
 			rev_MM = rev_spec[7].count('>')
 
-		# check if the number of mismatches is below the threshold
+		# check the number of mismatches
 		if fwd_MM > 0 or rev_MM > 0:
-			# LOOSE
-			if spec_filter == 'loose':
-				if fwd_MM + rev_MM > 5:
-					avoid_spec.append(all_lines[i].split("_")[2])
 			# STRICT
 			if spec_filter == 'strict':
-				if (fwd_MM + rev_MM > 3) or (fwd_MM == 1 & rev_MM == 2) or (fwd_MM == 2 & rev_MM == 1):
-					avoid_spec.append(all_lines[i].split("_")[2])
-		"""else:
-			avoid_spec.append(all_lines[i].split("_")[2])"""
-
+				# at least 4 mismatches in one primer
+				if (fwd_MM < 4 and rev_MM < 4):
+					# at least 5 combined mismatches
+					if (fwd_MM == 2 and rev_MM == 3) or (fwd_MM == 3 and rev_MM == 2) or (fwd_MM == 3 and rev_MM == 3) or (fwd_MM == 3 and rev_MM == 4) or (fwd_MM == 4 and rev_MM == 3):
+						pass
+					# reject
+					else:
+						avoid_spec.append(all_lines[i].split("_")[2])
+			# LOOSE
+			if spec_filter == 'loose':
+        		# at least 3 mismatches in one primer
+				if (fwd_MM < 3 and rev_MM < 3):
+					# at least 4 combined mismatches
+					if (fwd_MM == 2 and rev_MM == 2):
+						pass
+					# reject
+					else:
+						avoid_spec.append(all_lines[i].split("_")[2])
+		# no mismatches: off-target
+		else:
+			avoid_spec.append(all_lines[i].split("_")[2])
 
 
 ####################################################################################################
@@ -238,7 +276,10 @@ for primer in all_primers:
 		fold_amp_avoid = fold_amp_avoid.replace('[', "").replace(']', '').split(', ')
 		fold_amp_avoid = [ int(x) for x in fold_amp_avoid ]
 
-	# deltaG check (-9 is a good value)
+	# deltaG check
+	## less than -15 is not allowed
+	## less than -5 is not allowed if the position of a secundary structure is in the range of the primer
+	## greater than -5 is allowed
 	if amp_fold_avoid["primer" + str(primer_ID)] < -15:
 		filter_str = filter_str + 'FAIL_fold_amplicon_'
 	elif (amp_fold_avoid["primer" + str(primer_ID)] < -5) & any(x in range(FWD_len + 1) for x in fold_amp_avoid):
