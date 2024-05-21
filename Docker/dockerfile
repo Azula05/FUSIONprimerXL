@@ -22,7 +22,6 @@ RUN python3 -m pip install -U matplotlib jupyterlab
 RUN python3 -m pip install -U pandas
 RUN python3 -m pip install -U datetime
 RUN python3 -m pip install -U pybedtools
-RUN rm -rf /var/lib/apt/lists/*
 
 # Primer3
 WORKDIR /bin
