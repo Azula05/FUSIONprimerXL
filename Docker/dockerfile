@@ -4,7 +4,7 @@
 # base image
 FROM ubuntu:24.04
 LABEL python_version="3.12" \ ViennaRNA_version="2.6.4" \ fastahack_version="1.0.0" \ primer3_version="2.6.1" \ bigBedToBed_version="2024-05-01" \ bowtie_version="1.3.1" \ bedtools_version="2.30.0"
-# tell Docker it's not interactive
+# image is non-interactive ONLY DURING BUILD
 ARG DEBIAN_FRONTEND=noninteractive
 
 # install 'make' function (in build-essential & others from primer3 manual)
@@ -22,6 +22,17 @@ RUN python3 -m pip install -U matplotlib jupyterlab
 RUN python3 -m pip install -U pandas
 RUN python3 -m pip install -U datetime
 RUN python3 -m pip install -U pybedtools
+RUN rm -rf /var/lib/apt/lists/*
+
+# Primer3
+WORKDIR /bin
+RUN wget https://github.com/primer3-org/primer3/archive/refs/tags/v2.6.1.zip
+RUN unzip v2.6.1.zip
+WORKDIR /bin/primer3-2.6.1/src
+RUN make all
+RUN mv primer3_core /bin/primer3_core
+WORKDIR /bin
+RUN rm -rf primer3-2.6.1 v2.6.1.zip
 
 # nupack
 #ADD ./nupack-4.0.1.9.zip /bin/
@@ -29,7 +40,6 @@ RUN python3 -m pip install -U pybedtools
 #RUN python3 -m pip install -U nupack -f ./nupack-4.0.1.9/package
 
 # ViennaRNA (RNAfold)
-WORKDIR /bin
 RUN wget https://www.tbi.univie.ac.at/RNA/download/sourcecode/2_6_x/ViennaRNA-2.6.4.tar.gz
 RUN tar -xvzf ViennaRNA-2.6.4.tar.gz
 WORKDIR /bin/ViennaRNA-2.6.4
@@ -49,15 +59,6 @@ RUN mv fastahack /bin
 WORKDIR /bin
 RUN rm -rf fastahack-1.0.0 v1.0.0.zip
 
-# Primer3
-RUN wget https://github.com/primer3-org/primer3/archive/refs/tags/v2.6.1.zip
-RUN unzip v2.6.1.zip
-WORKDIR /bin/primer3-2.6.1/src
-RUN make all
-RUN mv primer3_core /bin/primer3_core
-WORKDIR /bin
-RUN rm -rf primer3-2.6.1 v2.6.1.zip
-
 # bigBedToBed dependencies
 RUN apt-get install -y libkrb5-3 curl
 
@@ -70,6 +71,7 @@ RUN apt-get install -y bowtie
 
 # bedtools
 RUN apt-get install -y bedtools
+RUN rm -rf /var/lib/apt/lists/*
 
 # scripts
 WORKDIR /
