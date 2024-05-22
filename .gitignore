@@ -7,16 +7,14 @@ test*
 nextflow_dev.config
 README.html
 .Rhistory
-assets/GRCh38/known_exons_GRCh38.bed
 assets/WBcel235/known_exons_WBcel235.bed
 assets/GRCm39/known_exons_GRCm39.bed
 assets/GRCz11/known_exons_GRCz11.bed
 assets/xenTro9/known_exons_xenTro9.bed
 bin/Single_record_retrieval_test.py
 bin/test.py
-assets/GRCh38/index_bowtie
-assets/GRCh38/index_fastahack
-assets/GRCh38/Known_exons_GRCh38.111.bed
+assets/GRCh38/index_bowtie/*
+assets/GRCh38/index_fastahack/*
 all_primers
 Docker/scripts
 
