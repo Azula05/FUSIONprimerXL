@@ -15,6 +15,7 @@ bin/Single_record_retrieval_test.py
 bin/test.py
 assets/GRCh38/index_bowtie/*
 assets/GRCh38/index_fastahack/*
+!.gitkeep
 all_primers
 Docker/scripts
 
