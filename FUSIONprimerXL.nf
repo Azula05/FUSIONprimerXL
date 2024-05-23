@@ -442,14 +442,14 @@ process filter_primers {
 
 	output:
 
-		path('selected_primers_*')
+		path('all_primers_*')
 		path('all_primers')
 		path('log_file_*')
 
 	"""
 	mkdir all_primers
 	09_filter.py -A $input_filter_handle -P $all_primers_handle -l 150 -s $output_SNP_handle -t $output_RNAfold_temp_handle -a $output_RNAfold_amp_handle -b $out_spec_primer_handle -p strict -f strict
-	10_gather_output.py -i all_primers/filtered_primers_* -a $annotation_splice_handle
+	10_gather_output.py -i all_primers/all_primers_* -a $annotation_splice_handle
 	"""
 }
 
@@ -474,15 +474,15 @@ process print_output {
 
 	output:
 	path('all_primers')
-	path('filtered_primers.txt')
+	path('suggested_primer_pairs.txt')
 	path('log_file.txt')
 	path('summary_run.txt')
 
 	"""
 	mkdir all_primers
 	cp all_primer_files*/* all_primers/
-	echo "fusion_ID\tprimer_ID\tFWD\tREV\tFWD_posistion\tFWD_length\tREV_position\tREV_length\tprimer_left_TM\tprimer_right_TM\tprimer_left_GC_perc\tprimer_right_GC_perc\tamplicon\tfilter\tleft_annotation\tright_annotation \tsplicing" > filtered_primers.txt
-	cat results_per_fusion* >> filtered_primers.txt
+	echo "fusion_ID\tprimer_ID\tFWD\tREV\tFWD_posistion\tFWD_length\tREV_position\tREV_length\tprimer_left_TM\tprimer_right_TM\tprimer_left_GC_perc\tprimer_right_GC_perc\tamplicon\tfilter\tleft_annotation\tright_annotation \tsplicing" > suggested_primer_pairs.txt
+	cat results_per_fusion* >> suggested_primer_pairs.txt
 	echo "fusion_ID\tchrom1\tend\tchrom2\tstart\tdesign\tprimer_found\ttotal_primers\tpassed\tfailed_spec\tfailed_SNP\tfailed_str_temp\tfailed_str_amp" > log_file.txt
 	cat log_file_per_fusion* >> log_file.txt
 	11_summary_run.py -l log_file.txt -s start_time_file -o . -u $params.upfront_filter -a all_fusions_file

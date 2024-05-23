@@ -117,10 +117,10 @@ for i in range(0, len(all_lines) - 1, 2):
 		if fwd_MM > 0 or rev_MM > 0:
 			# STRICT
 			if spec_filter == 'strict':
-				# at least 4 mismatches in one primer
-				if (fwd_MM < 4 and rev_MM < 4):
-					# at least 5 combined mismatches
-					if (fwd_MM == 2 and rev_MM == 3) or (fwd_MM == 3 and rev_MM == 2) or (fwd_MM == 3 and rev_MM == 3) or (fwd_MM == 3 and rev_MM == 4) or (fwd_MM == 4 and rev_MM == 3):
+				# at least 5 combined mismatches
+				if (fwd_MM + rev_MM < 5):
+					# at least 4 mismatches in one primer
+					if (fwd_MM == 4 and rev_MM == 0) or (fwd_MM == 0 and rev_MM == 4) :
 						pass
 					# reject
 					else:
@@ -196,7 +196,7 @@ amp_fold.close()
 
 # create an output file in the all primers folder
 all_primers = open(args.P[0])
-primer_file = open("all_primers/filtered_primers_" + fusion_ID + '_' + chrom1 + '_' + str(end) + '_' + chrom2 + '_' + str(start) + "_.txt", "a")
+primer_file = open("all_primers/all_primers_" + fusion_ID + '_' + chrom1 + '_' + str(end) + '_' + chrom2 + '_' + str(start) + "_.txt", "a")
 
 # to make log file
 total_primers = 0
@@ -293,7 +293,6 @@ for primer in all_primers:
 	if filter_str == "":
 		filter_str = "PASS_"
 		primer_found = 1
-		primer_file.write(primer.rstrip() + "\t" + filter_str[0:len(filter_str)-1] + "\n")
 
 	# gather info to add to log file
 	if filter_str == "PASS_":
@@ -306,6 +305,8 @@ for primer in all_primers:
 		failed_str_temp += 1
 	if "FAIL_fold_amplicon" in filter_str:
 		failed_str_amp += 1
+
+	primer_file.write(primer.rstrip() + "\t" + filter_str[0:len(filter_str)-1] + "\n")
 
 # end of primer loop
 
