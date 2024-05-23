@@ -17,5 +17,6 @@ assets/GRCh38/index_bowtie/*
 assets/GRCh38/index_fastahack/*
 !.gitkeep
 all_primers
+!example/expected_output/*
 Docker/scripts
 
