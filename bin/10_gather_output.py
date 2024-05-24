@@ -64,7 +64,6 @@ else:
 	if primer_found == "no":
 		output.close()
 		output = open('selected_primers_' + fusion_ID + '.txt', "w")
-		output.write("left_annotation\tright_annotation\tsplicing\tfilter\n")
 		output.write(info.lstrip('/') + "\tno primer pair passed all filters for this fusion transcript\n")
 
 # close files
