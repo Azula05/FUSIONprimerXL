@@ -95,7 +95,7 @@ else:
     end_bed = open("end.bed", "w")
     end_bed.write(fusion_chrom1 + "\t" + str(fusion_end - temp_length + 1) + "\t" + str(fusion_end) + "\n") # bed files are 0-based because of Knowngene file
     end_bed.close()
-    
+
     # check if END falls into an exon
     # make both files bedtools format
     exons_bed = pybedtools.BedTool(exons)
@@ -147,7 +147,7 @@ else:
         match_dict_start_size[trans] = int(match_e) - int(match_s) + 1
         match_dict_start_pos[trans] = match_c + ':' + match_s + '-' + match_e
         match_ex_tr_start[trans.split("_")[0]] = trans
-
+    
 ###########################################################################################################################
 ############################################## STEP 2 #####################################################################
 ###########################################################################################################################
@@ -194,19 +194,20 @@ else:
                     max_exon_end_length = match_pos
             
             # this variable describes how many nts are currently in the template length on the end side
-            temp_length_end = fusion_end - int(match_dict_end_pos[max_exon_end].replace(':', '-').split('-')[1])
+            temp_length_end = fusion_end - int(match_dict_end_pos[max_exon_end].replace(':', '-').split('-')[1])+1
 
             ## if it's long enough, the template sequence can be generated as usual
             if temp_length_end >= temp_length:
                 fasta_track.write(">end_" + str(fasta_end) + '\n')
                 fasta.write(fusion_chrom1.replace("chr", "") + ":" + str(fusion_end + 1 - temp_length) + "-" + str(fusion_end + 1) + "\n") # change to 1-based system
-                annotation.write('exon_' + match_dict_end_pos[max_exon_end] + '\t')
+                annotation.write('exon_' + match_dict_end_pos[max_exon_end] +'\t')
 
             ## if not, it needs the whole exon can be used
             else:
                 # print that exon pos to fasta file
                 fasta_track.write(">end_" + str(fasta_end) + '\n')
                 fasta.write(fusion_chrom1.replace("chr", "") + ":" + str(fusion_end + 1 - temp_length_end) + "-" + str(fusion_end + 1) + "\n") # change to 1-based system
+                annotation.write('exon_' + match_dict_end_pos[max_exon_end] + '\t')
                 
 
             ### START (right side of BP)
@@ -219,13 +220,13 @@ else:
                     max_exon_start_length = match_pos
             
             # this variable describes how many nts are currently in the template length on the start side
-            temp_length_start = int(match_dict_start_pos[max_exon_start].replace(':', '-').split('-')[2]) - fusion_start
-        
+            temp_length_start = int(match_dict_start_pos[max_exon_start].replace(':', '-').split('-')[2]) - fusion_start+1
+
             if temp_length_start >= temp_length:
                 # if it's long enough, the template sequence can be generated as usual
                 fasta_track.write(">start_" + str(fasta_start) + '\n')
                 fasta.write(fusion_chrom2.replace("chr", "") + ":" + str(fusion_start + 1) + "-" + str(fusion_start + temp_length) + "\n") # change to 1-based system
-                annotation.write('exon_' + match_dict_start_pos[max_exon_start] + '\t')
+                annotation.write('exon_' + match_dict_start_pos[max_exon_start] + '\tspliced\t')
 
             # if not, the whole exon can be used
             else:
@@ -233,6 +234,7 @@ else:
                 # print that exon pos to fasta file
                 fasta_track.write(">start_" + str(fasta_start) + '\n')
                 fasta.write(fusion_chrom2.replace("chr", "") + ":" + str(fusion_start + 1) + "-" + str(fusion_start + temp_length_start) + "\n") # change to 1-based system
+                annotation.write('exon_' + match_dict_start_pos[max_exon_start] + '\tspliced\t')
 
 
         ########## OVERLAP
