@@ -442,14 +442,14 @@ process filter_primers {
 
 	output:
 
-		path('all_primers_*')
-		path('all_primers')
-		path('log_file_*')
+	path('selected_primers_*')
+	path('all_primers')
+	path('log_file_*')
 
 	"""
 	mkdir all_primers
-	09_filter.py -A $input_filter_handle -P $all_primers_handle -l 150 -s $output_SNP_handle -t $output_RNAfold_temp_handle -a $output_RNAfold_amp_handle -b $out_spec_primer_handle -p strict -f strict
-	10_gather_output.py -i all_primers/all_primers_* -a $annotation_splice_handle
+	09_filter.py -A $input_filter_handle -P $all_primers_handle -l 150 -s $output_SNP_handle -t $output_RNAfold_temp_handle -a $output_RNAfold_amp_handle -b $out_spec_primer_handle -p $params.spec_filter -f $params.snp_filter
+	10_gather_output.py -i all_primers/all_* -a $annotation_splice_handle
 	"""
 }
 
@@ -555,5 +555,24 @@ workflow {
 		filter_primers.out[1].collect(),
 		split_fusionRNAs.out[2]
 	)
+}
 
+workflow.onComplete {
+	println "\n\t\t\t  Pipeline execution summary\n"+
+		"=================================================================================\n\n"+
+		"\tPipeline completed at:\t$workflow.complete\n" +
+		"\tExecution status:\t${ workflow.success ? 'OK' : 'failed' }\n"+
+		"\tNextflow version:\t$nextflow.version\n"+
+		"\tExecuted command:\t$workflow.commandLine\n"+
+		"\tRun name:\t\t$workflow.runName\n"+
+		"\tConfig file:\t\t$workflow.configFiles\n"+
+		"\tProfile:\t\t$workflow.profile\n"+
+		"\tContainer engine:\t$workflow.containerEngine\n"+
+		"\tContainer:\t\t$workflow.container\n"+
+		"\tStart time:\t\t$workflow.start\n"+
+		"\tCompletion:\t\t$workflow.complete\n"+
+		"\tDuration:\t\t$workflow.duration\n"+
+		"\tProject directory:\t$workflow.projectDir\n"+
+		"\tExit status:\t\t$workflow.exitStatus\n"+
+		"================================================================================="
 }
