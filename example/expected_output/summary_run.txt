@@ -12,6 +12,6 @@ in total
 
 see log file for more details per fusionRNA
 
-run started at 23/05/2024 10:00:40 (UTC)
-run ended at 23/05/2024 10:01:04 (UTC)
-total run time: 24 seconds
+run started at 24/05/2024 09:16:48 (UTC)
+run ended at 24/05/2024 09:17:07 (UTC)
+total run time: 19 seconds
