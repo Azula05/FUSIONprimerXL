@@ -107,7 +107,7 @@ docker run -v "$PWD/assets":/assets arneblom/fusionprimerxl:v1.0.6 bowtie-build 
 bowtie-build ./assets/GRCh38/index_bowtie/hg38_cdna.fa ./assets/GRCh38/index_bowtie/hg38_cdna
 ```
 
-#### Bed file with canonical exons (included for GRCh38)
+### Bed file with canonical exons (included for GRCh38)
 
 Step 1: download the gtf file from ensemble (https://www.ensembl.org/info/data/ftp/index.html) in the corresponding assets folder (example: assets/GRch38/)
 ```
@@ -124,7 +124,7 @@ Step 3: validate the bed file
 python3 ./bin/00_B_validate_bed.py -i ./assets/GRCh38/Known_exons_GRCh38.111.bed -c ./assets/GRCh38/chrom_sizes_GRCh38.txt 
 ```
 
-#### A file containing the canonical transcripts (**included** in assets/GRCh38)
+### A file containing the canonical transcripts (**included** in assets/GRCh38)
 
 you can generate this file this way if required (https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/):
 ```
