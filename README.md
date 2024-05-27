@@ -25,7 +25,7 @@
 <hr>
 
 ### Requirements:
-The pipeline can be ran entirely on the  [oncornalab/fusionprimerxl](https://hub.docker.com/r/oncornalab/fusionprimerxl) docker image, which will automatically be pulled by Nextflow if specified in the profile. Two refences are required to run the pipeline, these are not included in the git repository because of their size. Instructions on how to build them can be found in [[#Getting started]]. The pipeline can also be tested with the included [[#Example]] (example directory) without having to build any references, afterwards references can be build to make use of the pipeline.
+The pipeline can be ran entirely on the  [oncornalab/fusionprimerxl](https://hub.docker.com/r/oncornalab/fusionprimerxl) docker image, which will automatically be pulled by Nextflow if specified in the profile. Two refences are required to run the pipeline, these are not included in the git repository because of their size. Instructions on how to build them can be found in [getting started](#Getting-started). The pipeline can also be tested with the included [Example](#example) (example directory) without having to build any references, afterwards references can be build to make use of the pipeline.
 
 #### A) Local software:
 
@@ -48,7 +48,7 @@ Both indexes below are examples and can be replaced by your choosen index (--ind
 
 You do not need to install fastahack and Bowtie locally to create the required indexes. Instead you can use the Docker container. For this, [Docker](https://docs.docker.com/get-docker/) needs to be installed on your computer.
 
-#### Building fastahack index
+### <u>Building fastahack index</u>
 
 Make sure to to download the fastafile in a folder called index_fastahack for the corresponding genome.
 - Step 1:  download the complete primary assembly in the corresponding assets folder  (/assets/GRCh38/index_fastahack/).
@@ -73,7 +73,7 @@ docker run -v "$PWD/assets":/assets arneblom/fusionprimerxl:v1.0.6 fastahack -i 
 fastahack -i assets/GRCh38/index_fastahack/Homo_sapiens.GRCh38.dna.primary_assembly.fa
 ```
 
-#### Building the Bowtie index
+### <u>Building the Bowtie index</u>
 
 In general, a combination of the cDNA and ncRNA index are used to test the specificity of the primers.
 
