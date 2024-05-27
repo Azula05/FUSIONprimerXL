@@ -152,7 +152,9 @@ python3 ./bin/00_C_generate_ENST_list.py -i ./assets/GRCh38/MANE.GRCh38.v1.3.ens
 
 This tool requires a bed file as input, the input can have a User-defined filename. Good practice would be to place your input files in the input directory. The location of the input file can be defined in the nextflow.config file as params.input_bed = "Path" or by using the --input_bed \<path> on the command line.
 The input file with end and start representing the breakpoint:
+
 Note: make sure to use tabs instead of four spaces
+
 Important: make sure to use **0-based counting**
 
 > chromsome1    end    chromsome2    start
