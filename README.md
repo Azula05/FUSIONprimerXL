@@ -11,26 +11,30 @@
 
 ### Table of contents
 
-- [[#1. Installation]]
-	- [[#Building fastahack index]]
-	- [[#Building the Bowtie index]]
-- [[#2. Running on your computer]]
-	- [[#Example]]
-- [[#3. Step Running on the HPC (UGent)]]
-- [[#4. Other species]]
-- [[#5. Nextflow tower]]
-- [[#Cite]]
+- [1. Installation](#1-Installation)
+	- [Fastahack index](#Building-fastahack-index)
+	- [Bowtie index](#Building-the-Bowtie-index)
+- [Running](#2-Running-on-your-computer)
+	- [Example](#Example)
+- [HPC](#3-Step-Running-on-the-HPC-UGent)
+- [Other species](#4-Other-species)
+- [Nextflow tower](#5-Nextflow-tower)
+- [CITE](#Cite)
+
 ## 1. Installation
 <hr>
 
 ### Requirements:
 The pipeline can be ran entirely on the  [oncornalab/fusionprimerxl](https://hub.docker.com/r/oncornalab/fusionprimerxl) docker image, which will automatically be pulled by Nextflow if specified in the profile. Two refences are required to run the pipeline, these are not included in the git repository because of their size. Instructions on how to build them can be found in [[#Getting started]]. The pipeline can also be tested with the included [[#Example]] (example directory) without having to build any references, afterwards references can be build to make use of the pipeline.
-#### A) Local software
+
+#### A) Local software:
+
 Programs that need to be installed locally:
 - [Nextflow](https://www.nextflow.io/docs/latest/install.html)
 - [Docker](https://docs.docker.com/engine/install/)
 
-#### B) References
+#### B) References:
+
 The following references (2 indexes and 3 files) are required to run the pipeline:
 - a fasthack reference genome to extract the fusionRNA sequence surrounding the breakpoint (https://github.com/ekg/fastahack) (**needs to be build see below**)
 - a Bowtie cDNA + ncRNA reference to test the specificity of the primers (https://github.com/BenLangmead/bowtie) (**needs to be build see below**)
@@ -40,69 +44,88 @@ The following references (2 indexes and 3 files) are required to run the pipelin
 
 Both indexes below are examples and can be replaced by your choosen index (--index_fasta, --index_bowtie) and species (see below).
 
-### Getting started
+### Getting started:
+
 You do not need to install fastahack and Bowtie locally to create the required indexes. Instead you can use the Docker container. For this, [Docker](https://docs.docker.com/get-docker/) needs to be installed on your computer.
+
 #### Building fastahack index
+
 Make sure to to download the fastafile in a folder called index_fastahack for the corresponding genome.
 - Step 1:  download the complete primary assembly in the corresponding assets folder  (/assets/GRCh38/index_fastahack/).
+
 ```
 wget https://ftp.ensembl.org/pub/release-111/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 ```
 - Step 2: Unzip the file
+
 ```
 gunzip Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 ```
 - Step 3: Create the index with fastahack (make sure to run this command from the base folder FUSIONprimerXL)
 
- With the docker image
+***With the docker image***:
 ```
 docker run -v "$PWD/assets":/assets arneblom/fusionprimerxl:v1.0.6 fastahack -i assets/GRCh38/index_fastahack/Homo_sapiens.GRCh38.dna.primary_assembly.fa
 ```
-Or locally:
+
+***Or locally***:
 ```
 fastahack -i assets/GRCh38/index_fastahack/Homo_sapiens.GRCh38.dna.primary_assembly.fa
 ```
 
 #### Building the Bowtie index
+
 In general, a combination of the cDNA and ncRNA index are used to test the specificity of the primers.
 
 - Step 1: download the cDNA and ncRNA fasta files in the corresponding assests folder (/assets/GRCh38/index_bowtie/)
+
 ```
 wget https://ftp.ensembl.org/pub/release-111/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz ; wget https://ftp.ensembl.org/pub/release-111/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh38.ncrna.fa.gz
 ```
+
 - Step 2: unzipt the downloaded fasta file.
+
 ```
 gunzip Homo_sapiens.GRCh38.cdna.all.fa.gz ; gunzip Homo_sapiens.GRCh38.ncrna.fa.gz
 ```
+
 - Step 3: write the fasta files to a single file.
+
 ```
 cat Homo_sapiens.GRCh38.cdna.all.fa Homo_sapiens.GRCh38.ncrna.fa > hg38_cdna.fa ; rm Homo_sapiens.GRCh38.cdna.all.fa ; rm Homo_sapiens.GRCh38.ncrna.fa
 ```
+
 - Step 4: build the index
-With docker (make sure to run the command from the base folder FUSIONprimerXL)
+
+***With docker (make sure to run the command from the base folder FUSIONprimerXL)***
 ```
 docker run -v "$PWD/assets":/assets arneblom/fusionprimerxl:v1.0.6 bowtie-build /assets/GRCh38/index_bowtie/hg38_cdna.fa /assets/GRCh38/index_bowtie/hg38_cdna
 ```
-Or locally
+
+***Or locally***
 ```
 bowtie-build ./assets/GRCh38/index_bowtie/hg38_cdna.fa ./assets/GRCh38/index_bowtie/hg38_cdna
 ```
 
 #### Bed file with canonical exons (included for GRCh38)
+
 Step 1: download the gtf file from ensemble (https://www.ensembl.org/info/data/ftp/index.html) in the corresponding assets folder (example: assets/GRch38/)
 ```
 wget https://ftp.ensembl.org/pub/release-111/gtf/homo_sapiens/Homo_sapiens.GRCh38.111.gtf.gz; gunzip Homo_sapiens.GRCh38.111.gtf.gz
 ```
+
 Step 2: transform the gtf file to a bed file (execute form base folder FUSIONprimerXL)
 ```
 python3 ./bin/00_A_gtf_to_bed.py -i ./assets/GRCh38/Homo_sapiens.GRCh38.111.gtf -o ./assets/GRCh38/Known_exons_GRCh38.111.bed ; rm ./assets/GRCh38/Homo_sapiens.GRCh38.111.gtf
 ```
+
 Step 3: validate the bed file
 ```
 python3 ./bin/00_B_validate_bed.py -i ./assets/GRCh38/Known_exons_GRCh38.111.bed -c ./assets/GRCh38/chrom_sizes_GRCh38.txt 
 ```
 
 #### A file containing the canonical transcripts (**included** in assets/GRCh38)
+
 you can generate this file this way if required (https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/):
 ```
 # step 1 get the MANE file (in the correct assets folder)
@@ -112,6 +135,7 @@ python3 ./bin/00_C_generate_ENST_list.py -i ./assets/GRCh38/MANE.GRCh38.v1.3.ens
 ```
 
 ### The assets folder should now look like this
+
 - assets/GRCh38/
 	- index_fastahack/
 	- index_bowtie/
@@ -125,6 +149,7 @@ python3 ./bin/00_C_generate_ENST_list.py -i ./assets/GRCh38/MANE.GRCh38.v1.3.ens
 [Nextflow](https://www.nextflow.io/docs/latest/install.html) and [Docker](https://docs.docker.com/get-docker/) should be installed locally. Make sure the docker engine or [Docker Desktop](https://www.docker.com/products/docker-desktop) is running when you want run the pipeline.
 
 ### Input
+
 This tool requires a bed file as input, the input can have a User-defined filename. Good practice would be to place your input files in the input directory. The location of the input file can be defined in the nextflow.config file as params.input_bed = "Path" or by using the --input_bed \<path> on the command line.
 The input file with end and start representing the breakpoint:
 > chromsome1    end    chromsome2    start
@@ -138,6 +163,7 @@ chr5	70901933	chr5	70938841
 ```
 
 ### Output
+
 In the output folder, you will find:
 <ul>
   <li>suggested_primer_pairs.txt, a file containing one selected primer pair per fusionRNA (see below for column details)</li>
@@ -171,20 +197,24 @@ filtered_primers.txt output file column names:
 
 
 ### Example
+
 This repository contains an example run with 3 fusionRNAs. For this, a small subset of the indexes are also present in the example folder. The example can be run by:
 ```
 nextflow run FUSIONprimerXL.nf -profile example
 ```
+
 This is equivalent to:
 ```
 nextflow run FUSIONprimerXL.nf -profile local --output_dir example/output --input_bed example/input_fusionRNAs.bed --index_fasta example/GRCh38/index_fastahack --index_bowtie example/GRCh38/index_bowtie --index_bowtie_name  GRCh38_dna_small --known_exons example/GRCh38/known_exons_GRCh38_small.bed --chrom_file example/GRCh38/chrom_sizes_GRCh38_small.txt --params.list_ENST example/GRCh38/ENST_list_GRCh38_small.txt
 ```
 
 ### General usage
+
 To display information about all available parameters
 `nextflow run FUSIONprimerXL.nf --help`
 
-All parameters
+All parameters:
+
 ```
 Usage:
 
@@ -239,6 +269,7 @@ Note: If a fusionRNA is smaller than the requested template size, the template s
 
 ## 3. Step Running on the HPC (UGent)
 <hr>
+
 Nextflow version 20.10.0 is available on all clusters (swalot, skitty, victini, joltik, kirlia, doduo). The pipeline can be run through an interactive session. The pipeline can only run from the $VSC_SCRATCH_VO_USER directory.
 
 ```
@@ -250,10 +281,11 @@ nextflow run FUSIONprimerXL.nf --help
 
 ## 4. Other species
 <hr>
+
 As default, FUSIONprimerXL designs primers for humans (GRCh38). To design primers for other species, the following files have to be provided and parsed through the corresponding parameters:
 
 -  A file containing the chromosome sizes (parameter **chrom_file**) (for example from: https://www.ncbi.nlm.nih.gov/grc/human/data)
-- A fastahack index (parameter index_fasta) and Bowtie index (parameter index_bowtie) ([[#Building fastahack index]], [[#Building the Bowtie index]])
+- A [fastahack index](#Building-fastahack-index) (parameter **index_fasta**) and [Bowtie index](#Building-the-Bowtie-index)
 - A SNP database link (parameter snp_url) (for example: http://hgdownload.soe.ucsc.edu/gbdb/hg38/snp/dbSnp155Common.bb)
 - A file containing all ENST numbers of canonical transcripts or transcrits. This file can be generated by downloading the MANE file (https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/current/) and transforming it into a simple list using 00_C_generate_ENST_list.py (can be run in the Docker image).
 
