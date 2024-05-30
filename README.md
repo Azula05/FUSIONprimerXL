@@ -295,7 +295,7 @@ As default, FUSIONprimerXL designs primers for humans (GRCh38). To design primer
 #### Example references
 
 
-| Species                | reference       | source                                                                                                                                                                                                                                                   |
+| Species                | Reference       | Source                                                                                                                                                                                                                                                   |
 | ---------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Xenopus tropicalis     | DNA             | [http://ftp.ensembl.org/pub/release-111/fasta/xenopus_tropicalis/dna/Xenopus_tropicalis.UCB_Xtro_10.0.dna.toplevel.fa.gz](http://ftp.ensembl.org/pub/release-111/fasta/xenopus_tropicalis/dna/Xenopus_tropicalis.UCB_Xtro_10.0.dna.toplevel.fa.gz)       |
 |                        | cDNA            | [http://ftp.ensembl.org/pub/release-111/fasta/xenopus_tropicalis/cdna/Xenopus_tropicalis.UCB_Xtro_10.0.cdna.all.fa.gz](http://ftp.ensembl.org/pub/release-111/fasta/xenopus_tropicalis/cdna/Xenopus_tropicalis.UCB_Xtro_10.0.cdna.all.fa.gz)             |
