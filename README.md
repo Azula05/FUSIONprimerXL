@@ -288,7 +288,7 @@ mv ./bin/FUSIONprimerXL_both.nf ./FUSIONprimerXL_both.nf
 ```
 4. run the pipeline with the preferred program (ViennaRNA or Nupack)
 ```
-nextflow run FUSIONprimerXL_both.nf -profile standard --prediction_program Nupack
+nextflow run FUSIONprimerXL_both.nf -profile both --prediction_program Nupack
 ```
 
 ## 3. Step Running on the HPC (UGent)
