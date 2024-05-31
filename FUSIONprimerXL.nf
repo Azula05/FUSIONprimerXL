@@ -209,8 +209,8 @@ log.info """\
 FUSIONprimerXL pipeline
 ==============================================
 OncoRNALab - Marieke Vromman / Arne Blom
-Github -
-Docker - 
+Github - https://github.com/OncoRNALab/FUSIONprimerXL
+Docker - https://hub.docker.com/r/oncornalab/fusionprimerxl/
 ==============================================
 your input file: ${params.input_bed}
 your output directory: ${params.output_dir}
