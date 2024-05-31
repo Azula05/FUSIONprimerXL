@@ -270,6 +270,27 @@ Note: The pipeline results are cached by default in the directory $PWD/work. Thi
 
 Note: If a fusionRNA is smaller than the requested template size, the template size is reduced to the fusionRNA size. Of note, if this 300-nucleotide template sequence includes an exon-intron boundary, the intronic region (which may not be part of the fusionRNA) is included. Some fusionRNAs effectively also include intronic sequences, and some BPs concatenate an exonic and an intronic sequence. 
 
+### Running with nupack
+If you have a copy of nupack for example nupack-4.0.1.9 you can choose to run the pipeline with nupack instead of ViennaRNA or both. To do so you will have to build the docker image from the docker file included in /Docker. 
+1. Uncomment the following lines in the docker file and make sure the version is correct.
+```
+#ADD ./nupack-4.0.1.9.zip /bin/
+#RUN unzip nupack-4.0.1.9
+#RUN python3 -m pip install -U nupack -f ./nupack-4.0.1.9/package
+```
+2. Build the image (in Docker folder)
+```bash
+docker build -t fusionprimerxl:both .
+```
+3. copy the include nextflow script (in bin) to the base folder
+```
+mv ./bin/FUSIONprimerXL_both.nf ./FUSIONprimerXL_both.nf
+```
+4. run the pipeline with the preferred program (ViennaRNA or Nupack)
+```
+nextflow run FUSIONprimerXL_both.nf -profile standard --prediction_program Nupack
+```
+
 ## 3. Step Running on the HPC (UGent)
 <hr>
 
