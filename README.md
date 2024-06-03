@@ -113,7 +113,7 @@ Step 1: download the gtf file from ensemble (https://www.ensembl.org/info/data/f
 wget https://ftp.ensembl.org/pub/release-111/gtf/homo_sapiens/Homo_sapiens.GRCh38.111.gtf.gz; gunzip Homo_sapiens.GRCh38.111.gtf.gz
 ```
 
-Step 2: transform the gtf file to a bed file (execute form base folder FUSIONprimerXL)
+Step 2: transform the gtf file to a bed file (execute from base folder FUSIONprimerXL)
 ```
 python3 ./bin/00_A_gtf_to_bed.py -i ./assets/GRCh38/Homo_sapiens.GRCh38.111.gtf -o ./assets/GRCh38/Known_exons_GRCh38.111.bed ; rm ./assets/GRCh38/Homo_sapiens.GRCh38.111.gtf
 ```
