@@ -4,7 +4,7 @@
 ### Info
 
 - Collaborators: Marieke Vromman, Arne Blom, Annelien Morlion. Questions concerning the GitHub structure/scripts can be addressed to any of the collaborators.
-- Primer design pipeline for fusionRNAs based on primerXL (Lefever, S., Pattyn, F., De Wilde, B. et al. High-throughput PCR assay design for targeted resequencing using primerXL. BMC Bioinformatics 18, 400 (2017), https://doi.org/10.1186/s12859-017-1809-3 and CIRCprimerXL (M. Vromman, J. Anckaert, J. Vandesompele, P.J. Volders, CIRCprimerXL: convenient and high-throughput PCR primer design for circular RNA quantification. Frontiers in Bioinformatics (2022), DOI:10.3389/fbinf.2022.834655).
+- Primer design pipeline for fusionRNAs based on primerXL (Lefever, S., Pattyn, F., De Wilde, B. et al. High-throughput PCR assay design for targeted resequencing using primerXL. BMC Bioinformatics 18, 400 (2017), https://doi.org/10.1186/s12859-017-1809-3) and CIRCprimerXL (M. Vromman, J. Anckaert, J. Vandesompele, P.J. Volders, CIRCprimerXL: convenient and high-throughput PCR primer design for circular RNA quantification. Frontiers in Bioinformatics (2022), https://doi.org/10.3389/fbinf.2022.834655).
 - This pipeline runs entirly in the [oncornalab/fusionprimerxl](https://hub.docker.com/r/oncornalab/fusionprimerxl) docker image, which is available on DockerHub. It is not necessary to download this image locally, as Nextflow pulls the latest version automatically from DockerHub (depending on the profile).
  
 
