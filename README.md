@@ -140,11 +140,6 @@ Step 3: validate the bed file. This will probably show the warning faulty chromo
 python3 ./bin/00_B_validate_bed.py -i ./assets/GRCh38/Known_exons_GRCh38.111.bed -c ./assets/GRCh38/chrom_sizes_GRCh38.txt 
 ```
 
-Step 4: Move the files to the correct location
-```
-mv ./Known_exons_GRCh38.111.bed ./assets/GRCh38/Known_exons_GRCh38.111.bed
-```
-
 ### A file containing the canonical transcripts (**included** in assets/GRCh38)
 This file is already included and does not need to be created, the steps below are described for your information (FYI).  (https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/):
 ```
