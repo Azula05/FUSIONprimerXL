@@ -132,12 +132,12 @@ wget https://ftp.ensembl.org/pub/release-111/gtf/homo_sapiens/Homo_sapiens.GRCh3
 
 Step 2: transform the gtf file to a bed file (execute from base folder FUSIONprimerXL)
 ```
-python3 ./bin/00_A_gtf_to_bed.py -i ./assets/GRCh38/Homo_sapiens.GRCh38.111.gtf -o ./assets/GRCh38/Known_exons_GRCh38.111.bed ; rm ./assets/GRCh38/Homo_sapiens.GRCh38.111.gtf
+python3 ./bin/00_A_gtf_to_bed.py -i ./Homo_sapiens.GRCh38.111.gtf -o ./assets/GRCh38/Known_exons_GRCh38.111.bed ; rm ./Homo_sapiens.GRCh38.111.gtf
 ```
 
 Step 3: validate the bed file
 ```
-python3 ./bin/00_B_validate_bed.py -i ./Known_exons_GRCh38.111.bed -c ./assets/GRCh38/chrom_sizes_GRCh38.txt 
+python3 ./bin/00_B_validate_bed.py -i ./assets/GRCh38/Known_exons_GRCh38.111.bed -c ./assets/GRCh38/chrom_sizes_GRCh38.txt 
 ```
 
 Step 4: Move the files to the correct location
