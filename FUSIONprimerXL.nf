@@ -481,7 +481,7 @@ process print_output {
 	"""
 	mkdir all_primers
 	cp all_primer_files*/* all_primers/
-	echo "fusion_ID\tprimer_ID\tFWD\tREV\tFWD_posistion\tFWD_length\tREV_position\tREV_length\tprimer_left_TM\tprimer_right_TM\tprimer_left_GC_perc\tprimer_right_GC_perc\tamplicon\tfilter\tleft_annotation\tright_annotation \tsplicing" > suggested_primer_pairs.txt
+	echo "fusion_ID\tprimer_ID\tFWD\tREV\tFWD_position\tFWD_length\tREV_position\tREV_length\tprimer_left_TM\tprimer_right_TM\tprimer_left_GC_perc\tprimer_right_GC_perc\tamplicon\tfilter\tleft_annotation\tright_annotation \tsplicing" > suggested_primer_pairs.txt
 	cat results_per_fusion* >> suggested_primer_pairs.txt
 	echo "fusion_ID\tchrom1\tend\tchrom2\tstart\tdesign\tprimer_found\ttotal_primers\tpassed\tfailed_spec\tfailed_SNP\tfailed_str_temp\tfailed_str_amp" > log_file.txt
 	cat log_file_per_fusion* >> log_file.txt
