@@ -135,7 +135,7 @@ Step 2: transform the gtf file to a bed file (execute from base folder FUSIONpri
 python3 ./bin/00_A_gtf_to_bed.py -i ./Homo_sapiens.GRCh38.111.gtf -o ./assets/GRCh38/Known_exons_GRCh38.111.bed ; rm ./Homo_sapiens.GRCh38.111.gtf
 ```
 
-Step 3: validate the bed file
+Step 3: validate the bed file. This will probably show the warning faulty chromosome name; check the file at the specified lines if the chromosome name is indeed incorrect, correct it. If chromosome names like chrMT or chrKI270728.1 are present these lines can be removed or ignored.
 ```
 python3 ./bin/00_B_validate_bed.py -i ./assets/GRCh38/Known_exons_GRCh38.111.bed -c ./assets/GRCh38/chrom_sizes_GRCh38.txt 
 ```
