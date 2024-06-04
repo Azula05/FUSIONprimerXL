@@ -3,9 +3,8 @@
 
 ### Info
 
-- Collaborators: Marieke Vromman, Pieter-Jan Volders. Questions concerning the GitHub structure/scripts can be addressed to any of the collaborators.
-- Additional contributors: Arne Blom, Annelien Morlion.
-- Primer design pipeline for fusionRNAs based on primerXL (Lefever, S., Pattyn, F., De Wilde, B. et al. High-throughput PCR assay design for targeted resequencing using primerXL. BMC Bioinformatics 18, 400 (2017). https://doi.org/10.1186/s12859-017-1809-3).
+- Collaborators: Marieke Vromman, Arne Blom, Annelien Morlion. Questions concerning the GitHub structure/scripts can be addressed to any of the collaborators.
+- Primer design pipeline for fusionRNAs based on primerXL (Lefever, S., Pattyn, F., De Wilde, B. et al. High-throughput PCR assay design for targeted resequencing using primerXL. BMC Bioinformatics 18, 400 (2017), https://doi.org/10.1186/s12859-017-1809-3) and CIRCprimerXL (M. Vromman, J. Anckaert, J. Vandesompele, P.J. Volders, CIRCprimerXL: convenient and high-throughput PCR primer design for circular RNA quantification. Frontiers in Bioinformatics (2022), https://doi.org/10.3389/fbinf.2022.834655).
 - This pipeline runs entirly in the [oncornalab/fusionprimerxl](https://hub.docker.com/r/oncornalab/fusionprimerxl) docker image, which is available on DockerHub. It is not necessary to download this image locally, as Nextflow pulls the latest version automatically from DockerHub (depending on the profile).
  
 
@@ -25,7 +24,7 @@
 <hr>
 
 ### Requirements:
-The pipeline can be ran entirely on the  [oncornalab/fusionprimerxl](https://hub.docker.com/r/oncornalab/fusionprimerxl) docker image, which will automatically be pulled by Nextflow if specified in the profile. Two refences are required to run the pipeline, these are not included in the git repository because of their size. Instructions on how to build them can be found in [getting started](#Getting-started). The pipeline can also be tested with the included [Example](#example) (example directory) without having to build any references, afterwards references can be build to make use of the pipeline.
+The pipeline can be run entirely on the  [oncornalab/fusionprimerxl](https://hub.docker.com/r/oncornalab/fusionprimerxl) docker image, which will automatically be pulled by Nextflow if specified in the profile. Two refences are required to run the pipeline, these are not included in the git repository because of their size. Instructions on how to build them can be found in [getting started](#Getting-started). The pipeline can also be tested with the included [Example](#example) (example directory) without having to build any references, afterwards references can be build to make use of the pipeline.
 
 #### A) Local software:
 
@@ -77,13 +76,13 @@ fastahack -i assets/GRCh38/index_fastahack/Homo_sapiens.GRCh38.dna.primary_assem
 
 In general, a combination of the cDNA and ncRNA index are used to test the specificity of the primers.
 
-- Step 1: download the cDNA and ncRNA fasta files in the corresponding assests folder (/assets/GRCh38/index_bowtie/)
+- Step 1: download the cDNA and ncRNA fasta files in the corresponding assets folder (/assets/GRCh38/index_bowtie/)
 
 ```
 wget https://ftp.ensembl.org/pub/release-111/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz ; wget https://ftp.ensembl.org/pub/release-111/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh38.ncrna.fa.gz
 ```
 
-- Step 2: unzipt the downloaded fasta file.
+- Step 2: unzip the downloaded fasta file.
 
 ```
 gunzip Homo_sapiens.GRCh38.cdna.all.fa.gz ; gunzip Homo_sapiens.GRCh38.ncrna.fa.gz
@@ -114,7 +113,7 @@ Step 1: download the gtf file from ensemble (https://www.ensembl.org/info/data/f
 wget https://ftp.ensembl.org/pub/release-111/gtf/homo_sapiens/Homo_sapiens.GRCh38.111.gtf.gz; gunzip Homo_sapiens.GRCh38.111.gtf.gz
 ```
 
-Step 2: transform the gtf file to a bed file (execute form base folder FUSIONprimerXL)
+Step 2: transform the gtf file to a bed file (execute from base folder FUSIONprimerXL)
 ```
 python3 ./bin/00_A_gtf_to_bed.py -i ./assets/GRCh38/Homo_sapiens.GRCh38.111.gtf -o ./assets/GRCh38/Known_exons_GRCh38.111.bed ; rm ./assets/GRCh38/Homo_sapiens.GRCh38.111.gtf
 ```
@@ -271,7 +270,7 @@ Note: The pipeline results are cached by default in the directory $PWD/work. Thi
 Note: If a fusionRNA is smaller than the requested template size, the template size is reduced to the fusionRNA size. Of note, if this 300-nucleotide template sequence includes an exon-intron boundary, the intronic region (which may not be part of the fusionRNA) is included. Some fusionRNAs effectively also include intronic sequences, and some BPs concatenate an exonic and an intronic sequence. 
 
 ### Running with nupack
-If you have a copy of nupack for example nupack-4.0.1.9 you can choose to run the pipeline with nupack instead of ViennaRNA or both. To do so you will have to build the docker image from the docker file included in /Docker. 
+If you have a copy of nupack (e.g. nupack-4.0.1.9) you can choose to run the pipeline with nupack instead of ViennaRNA. To do so you will have to build the docker image from the docker file included in /Docker. 
 1. Uncomment the following lines in the docker file and make sure the version is correct.
 ```
 #ADD ./nupack-4.0.1.9.zip /bin/
