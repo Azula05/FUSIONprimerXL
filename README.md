@@ -23,6 +23,11 @@
 ## 1. Installation
 <hr>
 
+### Cloning the repository:
+```
+git clone https://github.com/Azula05/FUSIONprimerXL-.git
+```
+
 ### Requirements:
 The pipeline can be run entirely on the  [oncornalab/fusionprimerxl](https://hub.docker.com/r/oncornalab/fusionprimerxl) docker image, which will automatically be pulled by Nextflow if specified in the profile. Two refences are required to run the pipeline, these are not included in the git repository because of their size. Instructions on how to build them can be found in [getting started](#Getting-started). The pipeline can also be tested with the included [Example](#example) (example directory) without having to build any references, afterwards references can be build to make use of the pipeline.
 
@@ -49,8 +54,8 @@ You do not need to install fastahack and Bowtie locally to create the required i
 
 ### <u>Building fastahack index</u>
 
-Make sure to to download the fastafile in a folder called index_fastahack for the corresponding genome.
-- Step 1:  download the complete primary assembly in the corresponding assets folder  (/assets/GRCh38/index_fastahack/).
+Make sure to to download the fastafile in a folder called index_fastahack for the corresponding genome (example : /assets/GRCh38/index_fastahack/). The steps for GRCh38 are described below, for other species see [other species](#4. Other species), replace the corresponding links and file locations.
+- Step 1:  download the complete primary assembly in the corresponding assets folder.
 
 ```
 wget https://ftp.ensembl.org/pub/release-111/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
@@ -72,11 +77,17 @@ docker run -v "$PWD/assets":/assets arneblom/fusionprimerxl:v1.0.6 fastahack -i 
 fastahack -i assets/GRCh38/index_fastahack/Homo_sapiens.GRCh38.dna.primary_assembly.fa
 ```
 
+- Step4: Move the files to the correct assets folder.
+```
+mv ./Homo_sapiens.GRCh38.dna.primary_assembly.fa ./assets/GRCh38/index_fastahack/Homo_sapiens.GRCh38.dna.primary_assembly.fa ;
+mv ./Homo_sapiens.GRCh38.dna.primary_assembly.fa.fai ./assets/GRCh38/index_fastahack/Homo_sapiens.GRCh38.dna.primary_assembly.fa.fai
+```
+
 ### <u>Building the Bowtie index</u>
 
-In general, a combination of the cDNA and ncRNA index are used to test the specificity of the primers.
+In general, a combination of the cDNA and ncRNA index are used to test the specificity of the primers.  The steps for GRCh38 are described below, for other species see [other species](#4. Other species), replace the corresponding links and file locations (example: /assets/GRCh38/index_bowtie/).
 
-- Step 1: download the cDNA and ncRNA fasta files in the corresponding assets folder (/assets/GRCh38/index_bowtie/)
+- Step 1: download the cDNA and ncRNA fasta files in the corresponding assets folder.
 
 ```
 wget https://ftp.ensembl.org/pub/release-111/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz ; wget https://ftp.ensembl.org/pub/release-111/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh38.ncrna.fa.gz
@@ -106,7 +117,13 @@ docker run -v "$PWD/assets":/assets arneblom/fusionprimerxl:v1.0.6 bowtie-build 
 bowtie-build ./assets/GRCh38/index_bowtie/hg38_cdna.fa ./assets/GRCh38/index_bowtie/hg38_cdna
 ```
 
+- Step 5: move the files to the correct location:
+```
+mv ./hg38_cdna* ./assets/GRCh38/index_bowtie/
+```
+
 ### Bed file with canonical exons (included for GRCh38)
+This file is included for GRCh38; however, the process is the same for  [other species](#4. Other species), the steps are described below.
 
 Step 1: download the gtf file from ensemble (https://www.ensembl.org/info/data/ftp/index.html) in the corresponding assets folder (example: assets/GRch38/)
 ```
@@ -123,9 +140,13 @@ Step 3: validate the bed file
 python3 ./bin/00_B_validate_bed.py -i ./assets/GRCh38/Known_exons_GRCh38.111.bed -c ./assets/GRCh38/chrom_sizes_GRCh38.txt 
 ```
 
-### A file containing the canonical transcripts (**included** in assets/GRCh38)
+Step 4: Move the files to the correct location
+```
+mv ./Known_exons_GRCh38.111.bed ./assets/GRCh38/Known_exons_GRCh38.111.bed
+```
 
-you can generate this file this way if required (https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/):
+### A file containing the canonical transcripts (**included** in assets/GRCh38)
+This file is already included and does not need to be created, the steps below are described for your information (FYI).  (https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/):
 ```
 # step 1 get the MANE file (in the correct assets folder)
 wget https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/current/MANE.GRCh38.v1.3.ensembl_genomic.gtf.gz ; gunzip MANE.GRCh38.v1.3.ensembl_genomic.gtf.gz
@@ -205,15 +226,16 @@ This repository contains an example run with 3 fusionRNAs. For this, a small sub
 nextflow run FUSIONprimerXL.nf -profile example
 ```
 
-This is equivalent to:
-```
-nextflow run FUSIONprimerXL.nf -profile local --output_dir example/output --input_bed example/input_fusionRNAs.bed --index_fasta example/GRCh38/index_fastahack --index_bowtie example/GRCh38/index_bowtie --index_bowtie_name  GRCh38_dna_small --known_exons example/GRCh38/known_exons_GRCh38_small.bed --chrom_file example/GRCh38/chrom_sizes_GRCh38_small.txt --params.list_ENST example/GRCh38/ENST_list_GRCh38_small.txt
-```
-
 ### General usage
+From this point onward you are using the full tool, which means you will have to build the corresponding indexes as described in [getting started](#Getting started). Only the example can be ran without any additional references.
 
 To display information about all available parameters
 `nextflow run FUSIONprimerXL.nf --help`
+
+A command can be run like the example below or by defining the parameters in nextflow.config. ***Note: index_bowtie, index_bowtie_name, index_fasta and index_fasta_name have default values for GRCh38 corresponding to the steps above. If you made any changes or are working with another organism make sure the names and locations are correct for these arguments!***
+```
+nextflow run FUSIONprimerXL.nf -profile standard --input_bed $projectDir/input/input_fusionRNAs.bed --index_bowtie $projectDir/assets/index_bowtie/ --index_bowtie_name hg38_cdna --index_fasta $projectDir/assets/GRCh38/index_fastahack --index_fasta_name Homo_sapiens.GRCh38.dna.primary_assembly.fa
+```
 
 All parameters:
 
