@@ -69,7 +69,7 @@ gunzip Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 
 ***With the docker image***:
 ```
-docker run -v "$PWD/assets":/assets arneblom/fusionprimerxl:v1.0.6 fastahack -i assets/GRCh38/index_fastahack/Homo_sapiens.GRCh38.dna.primary_assembly.fa
+docker run -v "$PWD":/assets arneblom/fusionprimerxl:v1.0.6 fastahack -i assets/Homo_sapiens.GRCh38.dna.primary_assembly.fa
 ```
 
 ***Or locally***:
@@ -109,7 +109,7 @@ cat Homo_sapiens.GRCh38.cdna.all.fa Homo_sapiens.GRCh38.ncrna.fa > hg38_cdna.fa 
 
 ***With docker (make sure to run the command from the base folder FUSIONprimerXL)***
 ```
-docker run -v "$PWD/assets":/assets arneblom/fusionprimerxl:v1.0.6 bowtie-build /assets/GRCh38/index_bowtie/hg38_cdna.fa /assets/GRCh38/index_bowtie/hg38_cdna
+docker run -v "$PWD":/assets arneblom/fusionprimerxl:latest bowtie-build /assets/hg38_cdna.fa /assets/hg38_cdna
 ```
 
 ***Or locally***
