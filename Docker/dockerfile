@@ -34,9 +34,9 @@ WORKDIR /bin
 RUN rm -rf primer3-2.6.1 v2.6.1.zip
 
 # nupack
-#ADD ./nupack-4.0.1.9.zip /bin/
-#RUN unzip nupack-4.0.1.9
-#RUN python3 -m pip install -U nupack -f ./nupack-4.0.1.9/package
+# ADD ./nupack-4.0.1.9.zip /bin/
+# RUN unzip nupack-4.0.1.9
+# RUN python3 -m pip install -U nupack -f ./nupack-4.0.1.9/package
 
 # ViennaRNA (RNAfold)
 RUN wget https://www.tbi.univie.ac.at/RNA/download/sourcecode/2_6_x/ViennaRNA-2.6.4.tar.gz
