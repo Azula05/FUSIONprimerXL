@@ -54,7 +54,7 @@ You do not need to install fastahack and Bowtie locally to create the required i
 
 ### <u>Building fastahack index</u>
 
-Make sure to to download the fastafile in a folder called index_fastahack for the corresponding genome (example : /assets/GRCh38/index_fastahack/). The steps for GRCh38 are described below, for other species see [other species](#4. Other species), replace the corresponding links and file locations.
+Make sure to to download the fastafile in a folder called index_fastahack for the corresponding genome (example : /assets/GRCh38/index_fastahack/). The steps for GRCh38 are described below, for other species see [other species](#4-Other-species), replace the corresponding links and file locations.
 - Step 1:  download the complete primary assembly in the corresponding assets folder.
 
 ```
@@ -85,7 +85,7 @@ mv ./Homo_sapiens.GRCh38.dna.primary_assembly.fa.fai ./assets/GRCh38/index_fasta
 
 ### <u>Building the Bowtie index</u>
 
-In general, a combination of the cDNA and ncRNA index are used to test the specificity of the primers.  The steps for GRCh38 are described below, for other species see [other species](#4. Other species), replace the corresponding links and file locations (example: /assets/GRCh38/index_bowtie/).
+In general, a combination of the cDNA and ncRNA index are used to test the specificity of the primers.  The steps for GRCh38 are described below, for other species see [other species](#4-Other-species), replace the corresponding links and file locations (example: /assets/GRCh38/index_bowtie/).
 
 - Step 1: download the cDNA and ncRNA fasta files in the corresponding assets folder.
 
@@ -123,7 +123,7 @@ mv ./hg38_cdna* ./assets/GRCh38/index_bowtie/
 ```
 
 ### Bed file with canonical exons (included for GRCh38)
-This file is included for GRCh38; however, the process is the same for  [other species](#4. Other species), the steps are described below.
+This file is included for GRCh38; however, the process is the same for  [other species](#4-Other-species), the steps are described below.
 
 Step 1: download the gtf file from ensemble (https://www.ensembl.org/info/data/ftp/index.html) in the corresponding assets folder (example: assets/GRch38/)
 ```
@@ -227,7 +227,7 @@ nextflow run FUSIONprimerXL.nf -profile example
 ```
 
 ### General usage
-From this point onward you are using the full tool, which means you will have to build the corresponding indexes as described in [getting started](#Getting started). Only the example can be ran without any additional references.
+From this point onward you are using the full tool, which means you will have to build the corresponding indexes as described in [getting started](#Getting-started). Only the example can be ran without any additional references.
 
 To display information about all available parameters
 `nextflow run FUSIONprimerXL.nf --help`
