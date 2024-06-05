@@ -131,9 +131,11 @@ wget https://ftp.ensembl.org/pub/release-111/gtf/homo_sapiens/Homo_sapiens.GRCh3
 ```
 
 Step 2: transform the gtf file to a bed file (execute from base folder FUSIONprimerXL)
+***NOTE: if you are doing this for C. elegans use ./bin/00_A_gtf_to_bed_C_elegans.py instead***
 ```
 python3 ./bin/00_A_gtf_to_bed.py -i ./Homo_sapiens.GRCh38.111.gtf -o ./assets/GRCh38/Known_exons_GRCh38.111.bed ; rm ./Homo_sapiens.GRCh38.111.gtf
 ```
+
 
 Step 3: validate the bed file. This will probably show the warning faulty chromosome name; check the file at the specified lines if the chromosome name is indeed incorrect, correct it. If chromosome names like chrMT or chrKI270728.1 are present these lines can be removed or ignored.
 ```
